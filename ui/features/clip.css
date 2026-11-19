@@ -1,0 +1,16 @@
+/* clip feature */
+.clip-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.clip-btn.clip-off{opacity:.45}
+.clip-btn.busy svg{animation:clipSnip .5s var(--ease, ease) infinite alternate}
+.clip-menu{min-width:150px}
+.clip-head{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#aaa;padding:4px 10px 6px}
+.clip-hint{font-size:11px;color:#999;padding:6px 10px 2px;border-top:1px solid rgba(255,255,255,.08);margin-top:4px}
+.clip-menu button.clip-short{color:#999}
+.clip-flash{position:absolute;inset:0;pointer-events:none;z-index:6;border-radius:inherit;background:rgba(255,255,255,.35);box-shadow:inset 0 0 0 3px var(--a2, #a970ff);animation:clipFlash .65s ease-out forwards}
+.clip-toast{display:flex;flex-direction:column;gap:8px}
+.clip-path{word-break:break-all;opacity:.85;font-size:12px}
+.clip-reveal{align-self:flex-start;font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.1);color:inherit}
+.clip-reveal:hover{background:rgba(255,255,255,.18)}
+@keyframes clipFlash{0%{opacity:1}100%{opacity:0}}
+@keyframes clipSnip{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+@media (prefers-reduced-motion: reduce){.clip-flash{animation:none;opacity:0}.clip-btn.busy svg{animation:none}}

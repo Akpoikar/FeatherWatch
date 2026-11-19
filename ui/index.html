@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lightweight</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="icon" type="image/png" href="assets/icon-256.png">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="features/chat.css">
+<link rel="stylesheet" href="features/multiview.css">
+<link rel="stylesheet" href="features/clip.css">
+<link rel="stylesheet" href="features/channel.css">
+</head>
+<body>
+<div id="app" class="app">
+  <!-- Top bar -->
+  <header class="topbar">
+    <button class="icon-btn" id="btnSidebar" title="Toggle sidebar"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <a class="brand" id="brand" href="#" title="Home">
+      <span class="logo"><svg viewBox="0 0 64 64"><path class="ghost" d="M16.5 20.5c0-2.7 2.9-4.4 5.3-3l15.4 9.3c2.3 1.4 2.3 4.7 0 6.1L21.8 46.5c-2.4 1.4-5.3-.3-5.3-3z"/><path d="M23.5 20.5c0-2.7 2.9-4.4 5.3-3l15.4 9.3c2.3 1.4 2.3 4.7 0 6.1L28.8 46.5c-2.4 1.4-5.3-.3-5.3-3z"/></svg></span>
+      <span class="brand-name">Lightweight</span>
+    </a>
+    <form class="paste" id="pasteForm" autocomplete="off">
+      <svg class="paste-ic" viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+      <input id="pasteInput" type="text" spellcheck="false" placeholder="Paste any link or type a channel name…  (Ctrl/⌘+V anywhere)">
+      <kbd class="paste-kbd">⌘K</kbd>
+      <button class="btn grad" type="submit">Watch</button>
+    </form>
+    <div class="top-actions">
+      <button class="btn ghost" id="btnBrowse" title="Browse Twitch"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Browse</span></button>
+      <button class="icon-btn" id="btnRefresh" title="Refresh live status"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+      <button class="icon-btn" id="btnHelp" title="Keyboard shortcuts (?)"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg></button>
+      <button class="icon-btn" id="btnSettings" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+  </header>
+
+  <div class="body">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="side-section">
+        <div class="side-head"><span>Followed</span><span class="side-count" id="followCount"></span></div>
+        <ul class="side-list" id="followList"></ul>
+      </div>
+      <div class="side-section">
+        <div class="side-head"><span>Recently watched</span>
+          <button class="link-btn" id="btnClearHistory" title="Clear history">Clear</button></div>
+        <ul class="side-list" id="historyList"></ul>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main" id="main">
+      <section class="view active" id="viewHome">
+        <div class="home-wrap">
+          <div class="hero">
+            <h1>Watch anything, <span class="grad-text">lightly.</span></h1>
+            <p>Paste a Twitch, YouTube or Kick link — or just a channel name. Drop links onto the window, or press <kbd>Ctrl/⌘</kbd>+<kbd>V</kbd> anywhere.</p>
+          </div>
+          <h2 class="row-title"><span class="live-dot"></span>Live now</h2>
+          <div class="grid" id="gridLive"></div>
+          <h2 class="row-title">Continue watching</h2>
+          <div class="grid" id="gridContinue"></div>
+          <h2 class="row-title">Recordings</h2>
+          <div class="rec-list" id="recList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="viewBrowse">
+        <div class="home-wrap">
+          <div class="browse-head">
+            <button class="btn ghost" id="browseBack" hidden><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><span>Games</span></button>
+            <h2 class="row-title" id="browseTitle">Browse</h2>
+            <div class="browse-tabs" id="browseTabs">
+              <button class="chip on" data-tab="games">Top games</button>
+              <button class="chip" data-tab="streams">Top streams</button>
+            </div>
+          </div>
+          <div class="grid" id="browseGrid"></div>
+          <div class="browse-more"><button class="btn ghost" id="browseMore" hidden>Load more</button></div>
+        </div>
+      </section>
+
+      <section class="view" id="viewPlayer">
+        <div class="player-layout" id="playerLayout">
+          <div class="player-col">
+            <div class="player" id="player" tabindex="-1">
+              <video id="video" playsinline></video>
+              <div class="player-skel" id="playerSkel"><div class="spinner"></div><div class="skel-text" id="skelText">Resolving…</div></div>
+              <div class="player-error" id="playerError" hidden></div>
+              <div class="big-play" id="bigPlay"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></div>
+              <div class="osd" id="osd"></div>
+              <div class="controls" id="controls">
+                <div class="seek" id="seek">
+                  <div class="seek-buf" id="seekBuf"></div>
+                  <div class="seek-fill" id="seekFill"></div>
+                  <div class="seek-thumb" id="seekThumb"></div>
+                  <div class="seek-tip" id="seekTip">0:00</div>
+                </div>
+                <div class="ctrl-row">
+                  <button class="cbtn" id="cPlay" title="Play/Pause (k)"><svg class="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg><svg class="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+                  <button class="cbtn" id="cBack" title="Back 10s (←/j)"><svg viewBox="0 0 24 24"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button>
+                  <button class="cbtn" id="cFwd" title="Forward 10s (→/l)"><svg viewBox="0 0 24 24"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg></button>
+                  <div class="vol">
+                    <button class="cbtn" id="cMute" title="Mute (m)"><svg class="i-vol" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><svg class="i-muted" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m23 9-6 6M17 9l6 6"/></svg></button>
+                    <input type="range" id="cVol" min="0" max="1" step="0.01" value="1">
+                  </div>
+                  <span class="time" id="cTime">0:00</span>
+                  <button class="live-btn" id="cLive" title="Go live">LIVE</button>
+                  <span class="latency" id="cLatency" title="Latency behind live"></span>
+                  <span class="spacer"></span>
+                  <button class="cbtn rec" id="cRecord" title="Record"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg></button>
+                  <div class="menu-wrap">
+                    <button class="cbtn txt" id="cSpeed" title="Playback speed">1×</button>
+                    <div class="menu" id="speedMenu"></div>
+                  </div>
+                  <div class="menu-wrap">
+                    <button class="cbtn" id="cQuality" title="Quality"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></button>
+                    <div class="menu" id="qualityMenu"></div>
+                  </div>
+                  <button class="cbtn" id="cPip" title="Picture-in-picture"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><rect x="12" y="11" width="8" height="6" rx="1"/></svg></button>
+                  <button class="cbtn" id="cTheatre" title="Theatre mode (t)"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/></svg></button>
+                  <button class="cbtn" id="cFull" title="Fullscreen (f)"><svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
+                </div>
+              </div>
+            </div>
+            <div class="info">
+              <div class="avatar" id="infoAvatar">L</div>
+              <div class="info-text">
+                <div class="info-title" id="infoTitle">—</div>
+                <div class="info-sub"><span id="infoAuthor"></span><span class="dotsep">•</span><span id="infoCategory"></span><span class="badge-live" id="infoLive">LIVE</span><span class="info-viewers" id="infoViewers" hidden><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><span></span></span></div>
+              </div>
+              <div class="info-actions">
+                <button class="btn ghost" id="btnFollow"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span>Follow</span></button>
+                <button class="btn ghost" id="btnVlc" title="Open in external player"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg><span>Open in VLC</span></button>
+                <button class="btn ghost" id="btnChat" title="Toggle chat (c)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Chat</span></button>
+              </div>
+            </div>
+            <div class="about" id="about">
+              <div class="about-name" id="aboutName">About</div>
+              <div class="about-bio" id="aboutBio"></div>
+              <div class="about-links" id="aboutLinks"></div>
+            </div>
+          </div>
+          <aside class="chat" id="chat">
+            <div class="chat-head"><span>Stream chat</span><span class="chat-status" id="chatStatus"></span>
+              <button class="icon-btn sm" id="btnChatClose" title="Hide chat"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button></div>
+            <div class="chat-body" id="chatBody"></div>
+            <div class="chat-foot">Read-only · anonymous</div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="drop-overlay" id="dropOverlay"><div>Drop link to watch</div></div>
+  <div class="toasts" id="toasts"></div>
+
+  <!-- Settings -->
+  <div class="modal" id="settingsModal" hidden>
+    <div class="modal-card">
+      <h3>Settings</h3>
+      <form id="settingsForm">
+        <label>External player path<input name="player_path" placeholder="auto-detect (VLC / mpv)"></label>
+        <label>Default quality<select name="default_quality"><option>best</option><option>1080p60</option><option>1080p</option><option>720p60</option><option>720p</option><option>480p</option><option>360p</option><option>160p</option><option>audio_only</option><option>worst</option></select></label>
+        <label>Recording folder<input name="record_dir" placeholder="~/Videos/Lightweight"></label>
+        <label>Live check interval (minutes)<input name="live_poll_minutes" type="number" min="1" max="120"></label>
+        <label class="row"><input name="low_latency" type="checkbox"> Low-latency live mode</label>
+        <label>Theme<select name="theme"><option value="dark">Dark</option><option value="light">Light</option></select></label>
+        <div class="modal-actions"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn grad" type="submit">Save</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Help -->
+  <div class="modal" id="helpModal" hidden>
+    <div class="modal-card">
+      <h3>Keyboard shortcuts</h3>
+      <div class="keys">
+        <div><kbd>Space</kbd>/<kbd>K</kbd></div><div>Play / pause</div>
+        <div><kbd>←</kbd>/<kbd>→</kbd></div><div>Seek 10 seconds</div>
+        <div><kbd>J</kbd>/<kbd>L</kbd></div><div>Seek 10 seconds</div>
+        <div><kbd>F</kbd></div><div>Fullscreen</div>
+        <div><kbd>M</kbd></div><div>Mute</div>
+        <div><kbd>T</kbd></div><div>Theatre mode</div>
+        <div><kbd>C</kbd></div><div>Toggle chat</div>
+        <div><kbd>↑</kbd>/<kbd>↓</kbd></div><div>Volume</div>
+        <div><kbd>Ctrl/⌘</kbd>+<kbd>K</kbd></div><div>Command palette</div>
+        <div><kbd>Ctrl/⌘</kbd>+<kbd>V</kbd></div><div>Paste &amp; play link</div>
+        <div><kbd>Esc</kbd></div><div>Close / exit</div>
+        <div><kbd>?</kbd></div><div>This help</div>
+      </div>
+      <div class="modal-actions"><button class="btn grad" data-close>Got it</button></div>
+    </div>
+  </div>
+
+  <!-- Command palette -->
+  <div class="modal palette-modal" id="palette" hidden>
+    <div class="palette">
+      <input id="paletteInput" placeholder="Search follows & history, or paste a link…" spellcheck="false">
+      <ul id="paletteList"></ul>
+    </div>
+  </div>
+
+  <div class="ctx" id="ctxMenu" hidden></div>
+</div>
+<script src="vendor/hls.min.js"></script>
+<script src="app.js"></script>
+<script src="features/chat.js"></script>
+<script src="features/multiview.js"></script>
+<script src="features/clip.js"></script>
+<script src="features/channel.js"></script>
+</body>
+</html>

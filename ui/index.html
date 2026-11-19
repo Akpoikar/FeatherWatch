@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lightweight</title>
+<script>/* theme feature: apply cached appearance before first paint */try{var t=JSON.parse(localStorage.getItem('lw_theme_boot'));if(t&&t.vars){var d=document.documentElement;for(var k in t.vars)d.style.setProperty(k,t.vars[k]);d.className=t.cls.join(' ');d.setAttribute('data-theme',t.scheme)}}catch(e){}</script>
 <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
 <link rel="icon" type="image/png" href="assets/icon-256.png">
 <link rel="stylesheet" href="style.css">
@@ -11,6 +12,10 @@
 <link rel="stylesheet" href="features/multiview.css">
 <link rel="stylesheet" href="features/clip.css">
 <link rel="stylesheet" href="features/channel.css">
+<link rel="stylesheet" href="features/stats.css">
+<link rel="stylesheet" href="features/browseplus.css">
+<link rel="stylesheet" href="features/theme.css">
+<link rel="stylesheet" href="features/clipedit.css">
 </head>
 <body>
 <div id="app" class="app">
@@ -210,5 +215,9 @@
 <script src="features/multiview.js"></script>
 <script src="features/clip.js"></script>
 <script src="features/channel.js"></script>
+<script src="features/stats.js"></script>
+<script src="features/browseplus.js"></script>
+<script src="features/theme.js"></script>
+<script src="features/clipedit.js"></script>
 </body>
 </html>

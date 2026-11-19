@@ -65,7 +65,7 @@
 
 /* sidebar search */
 .ch-search{position:relative;display:flex;align-items:center;margin:2px 8px 6px;height:32px;background:var(--bg3);border:1px solid var(--line);border-radius:9px;transition:border-color var(--t),box-shadow var(--t)}
-.ch-search:focus-within{border-color:var(--a1);box-shadow:0 0 0 3px rgba(139,92,246,.2)}
+.ch-search:focus-within{border-color:var(--a1);box-shadow:0 0 0 3px color-mix(in srgb, var(--a1) 20%, transparent)}
 .ch-s-ic{display:grid;place-items:center;width:30px;color:var(--fg3);flex:none}
 .ch-s-ic svg,.ch-s-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2}
 .ch-search input{flex:1;min-width:0;background:none;border:0;outline:0;font-size:13px;padding:0}
@@ -86,3 +86,5 @@
 @keyframes chUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes chIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.ch-view *,.ch-search,.ch-nores,.side-item{animation:none!important;transition:none!important}}
+.ch-view .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--fg2);font-size:12px;font-weight:600;transition:background var(--t),border-color var(--t),transform .12s}
+.ch-view .chip:hover{background:var(--bg3);border-color:var(--a1);color:var(--fg);transform:translateY(-1px)}

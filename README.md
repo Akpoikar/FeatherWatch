@@ -5,6 +5,12 @@ Runs on Windows and macOS (Linux works too).
 
 Lightweight uses the webview your OS already has (WebView2 on Windows, WKWebView on macOS) through [pywebview](https://pywebview.flowrl.com/). It doesn't bundle Electron or Chromium, so the app is a few MB and doesn't need hundreds of MB of RAM just to start.
 
+## Screenshots
+
+| Watching a stream | Browsing categories |
+|---|---|
+| ![Watching a stream with chat](docs/screenshots/watching.png) | ![Browsing Twitch categories](docs/screenshots/browse.png) |
+
 ---
 
 ## Features

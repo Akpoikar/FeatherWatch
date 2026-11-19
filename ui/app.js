@@ -171,7 +171,7 @@
 
   // ---------- home ----------
   function card(it, opts) {
-    const c = el('div', 'card');
+    const c = el('div', 'card'); c.dataset.id = it.id || '';
     const thumb = el('div', 'thumb');
     if (it.thumbnail) { const i = el('div', 'thumb-img'); i.style.backgroundImage = `url("${it.thumbnail}")`; thumb.appendChild(i); }
     else { const i = el('div', 'thumb-img'); i.style.background = avBg(it.author || it.id); thumb.appendChild(i); thumb.appendChild(el('div', 'thumb-ph', esc(initial(it)))); }
@@ -180,7 +180,8 @@
     if (!it.is_live && it.duration) thumb.appendChild(el('span', 'tag r', fmtTime(it.duration)));
     if (opts && opts.progress && it.duration) thumb.appendChild(el('div', 'prog', `<i style="width:${Math.min(100, (it.progress || 0) / it.duration * 100)}%"></i>`));
     c.appendChild(thumb);
-    const av = el('div', 'card-av', esc(initial(it))); av.style.background = avBg(it.author || it.id);
+    const av = el('div', 'card-av', it.avatar ? '' : esc(initial(it)));
+    av.style.background = it.avatar ? `center/cover url("${it.avatar}")` : avBg(it.author || it.id);
     const meta = el('div', 'card-meta'); meta.appendChild(av);
     meta.appendChild(el('div', 'card-text', `<div class="card-title">${esc(it.title || nameOf(it))}</div><div class="card-sub">${esc(it.author || it.platform)}</div><div class="card-cat">${esc(it.category || (it.last_watched ? ago(it.last_watched) : ''))}</div>`));
     c.appendChild(meta);
@@ -707,7 +708,7 @@
       }
     }
     B.busy = true; more.disabled = true; more.textContent = 'Loading…';
-    const r = B.mode === 'games' ? await call('browse_games', B.cursor) : await call('browse_streams', B.game ? B.game.id : null, B.cursor);
+    const r = B.mode === 'games' ? await call('browse_games', B.cursor) : await (LW.browseStreams || ((g, cur) => call('browse_streams', g, cur)))(B.game ? B.game.id : null, B.cursor);
     B.busy = false; more.disabled = false; more.textContent = 'Load more';
     if (reset) grid.innerHTML = '';
     if (!r.ok) { if (!B.items) grid.innerHTML = `<div class="empty">${esc(r.error)}</div>`; else toast(r.error, 'error'); return; }
@@ -768,7 +769,7 @@
   const readyCbs = LW._ready || [];
   Object.assign(LW, {
     $, el, esc, fmtTime, call, toast, showView, openInput, renderSidebar, renderHome, setInfo, nameOf, initial, avBg,
-    openModal, closeModals, stopPlayback, loadData,
+    openModal, closeModals, stopPlayback, loadData, browseOpen, browseState: B,
     get S() { return S; }, get video() { return video; }, get hls() { return S.hls; },
     hooks: { itemOpened: [], playing: [], stopped: [], event: [], sidebarRendered: [] },
     on(name, fn) { (LW.hooks[name] = LW.hooks[name] || []).push(fn); },

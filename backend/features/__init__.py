@@ -8,7 +8,7 @@ Optional `shutdown(api)` is called when the window closes.
 import importlib
 import traceback
 
-FEATURES = ["chat", "multiview", "clip", "channel"]
+FEATURES = ["chat", "multiview", "clip", "channel", "stats", "browseplus", "theme", "clipedit"]
 
 
 def load(api, wrap):

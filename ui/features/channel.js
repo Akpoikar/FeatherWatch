@@ -224,13 +224,15 @@
       node.addEventListener('click', e => { e.stopPropagation(); e.preventDefault(); openChannel(login, it); });
     }
 
-    // sidebar: avatar click opens the profile (row click still plays). Order mirrors app.js renderSidebar.
+    // sidebar: avatar click opens the profile (row click still plays). Rows carry data-id (set in app.js sideItem).
     function bindSidebar() {
-      const f = S.follows.slice().sort((a, b) => (b.is_live ? 1 : 0) - (a.is_live ? 1 : 0) || (b.viewers || 0) - (a.viewers || 0));
-      const fl = [...document.querySelectorAll('#followList > .side-item')];
-      if (fl.length === f.length) fl.forEach((li, n) => { li._lwItem = f[n]; bindAv(li.querySelector('.side-av'), f[n]); });
-      const h = S.history.slice(0, 30), hl = [...document.querySelectorAll('#historyList > .side-item')];
-      if (hl.length === h.length) hl.forEach((li, n) => { li._lwItem = h[n]; if (h[n].kind === 'channel') bindAv(li.querySelector('.side-av'), h[n]); });
+      const byId = {};
+      S.history.forEach(it => { byId[it.id] = it; }); S.follows.forEach(it => { byId[it.id] = it; });
+      document.querySelectorAll('#followList > .side-item, #historyList > .side-item').forEach(li => {
+        const it = byId[li.dataset.id]; if (!it) return;
+        li._lwItem = it;
+        if (it.kind === 'channel') bindAv(li.querySelector('.side-av'), it);
+      });
     }
 
     // player info avatar + author
@@ -303,6 +305,7 @@
         if (f) { f.click(); clear(); inp.blur(); } else if (v) { clear(); inp.blur(); LW.openInput(v); }
       }
     });
+    wrap.addEventListener('click', () => { const app = document.querySelector('.app'); if (app && app.classList.contains('side-collapsed')) { const b = $('#btnSidebar'); if (b) b.click(); setTimeout(() => inp.focus(), 50); } });
     wrap.querySelector('.ch-s-x').onclick = () => { clear(); inp.focus(); };
     document.addEventListener('keydown', e => {
       if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;

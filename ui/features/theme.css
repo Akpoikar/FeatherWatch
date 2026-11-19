@@ -1,0 +1,66 @@
+/* theme feature: appearance overrides (vars are set inline on <html> by theme.js) */
+html.lw-themed{--lw-a1-rgb:139,92,246}
+/* accent-aware replacements for hard-coded purple glows in style.css */
+html.lw-themed .logo{box-shadow:0 4px 14px color-mix(in srgb,var(--a1) 45%,transparent)}
+html.lw-themed .paste:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,var(--a1) 25%,transparent)}
+html.lw-themed .hero{background:radial-gradient(1200px 300px at 0% 0%,color-mix(in srgb,var(--a1) 25%,transparent),transparent 60%),radial-gradient(800px 260px at 100% 100%,color-mix(in srgb,var(--a2) 20%,transparent),transparent 60%),var(--bg2)}
+html.lw-themed .player-skel{background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--a1) 15%,transparent),#000 70%)}
+html.lw-themed .modal-card{border-radius:calc(var(--r) + 6px)}
+
+/* crossfade on theme change */
+html.lw-fade,html.lw-fade body,html.lw-fade *{transition:background-color .25s ease,color .25s ease,border-color .25s ease,fill .25s ease!important}
+
+/* font scale */
+html.lw-themed body{zoom:var(--lw-zoom,1)}
+html.lw-themed .app{height:calc(100vh / var(--lw-zoom,1))}
+
+/* card size */
+html.lw-themed .grid{grid-template-columns:repeat(auto-fill,minmax(var(--lw-card,260px),1fr))}
+
+/* compact sidebar */
+html.lw-compact .side-item{padding:3px 8px;gap:8px}
+html.lw-compact .side-av{width:24px;height:24px;font-size:11px}
+html.lw-compact .side-av .ldot{width:8px;height:8px}
+html.lw-compact .side-sub{display:none}
+html.lw-compact .side-head{padding:6px 14px 4px}
+
+/* hide offline follows */
+html.lw-hide-offline #followList .side-item:not(:has(.ldot)){display:none}
+
+/* reduce motion (forced) */
+html.lw-reduce *,html.lw-reduce *::before,html.lw-reduce *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+
+/* ---- settings UI ---- */
+.th-tabs{display:flex;gap:4px;margin:-4px 0 16px;background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:3px}
+.th-tabs button{flex:1;height:30px;border-radius:7px;font-weight:600;color:var(--fg2);transition:background var(--t),color var(--t)}
+.th-tabs button.on{background:var(--bg2);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#settingsModal .modal-card.th-wide{width:min(600px,94vw);max-height:90vh;overflow-y:auto}
+.th-pane h4{margin:14px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg3)}
+.th-pane h4:first-child{margin-top:0}
+.th-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.th-preset{border:2px solid var(--line);border-radius:10px;padding:0;overflow:hidden;text-align:left;transition:border-color var(--t),transform .12s}
+.th-preset:hover{transform:translateY(-2px)}
+.th-preset.on{border-color:var(--a1)}
+.th-prev{height:46px;display:flex;gap:4px;padding:6px}
+.th-prev i{display:block;border-radius:4px}
+.th-prev i:nth-child(1){width:22%}
+.th-prev i:nth-child(2){flex:1}
+.th-preset span{display:block;padding:5px 8px;font-size:12px;font-weight:600;background:var(--bg3)}
+.th-swatches{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.th-sw{width:28px;height:28px;border-radius:50%;border:2px solid transparent;box-shadow:0 0 0 1px var(--line);transition:transform .12s}
+.th-sw:hover{transform:scale(1.1)}
+.th-sw.on{border-color:var(--fg);}
+.th-sw.auto{background:conic-gradient(#8b5cf6,#ec4899,#f59e0b,#22c55e,#3b82f6,#8b5cf6)}
+.th-custom{width:34px!important;height:30px!important;padding:0!important;border:0!important;background:none!important;cursor:pointer}
+.th-row{display:grid;grid-template-columns:140px 1fr 48px;align-items:center;gap:10px;margin:6px 0;font-size:13px}
+.th-row output{color:var(--fg2);font-size:12px;text-align:right}
+.th-row input[type=range]{accent-color:var(--a1);width:100%}
+.th-seg{display:inline-flex;background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:2px}
+.th-seg button{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;color:var(--fg2)}
+.th-seg button.on{background:var(--grad);color:#fff}
+.th-checks label.row{margin-bottom:6px}
+.th-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+/* readable text on light accents (e.g. High contrast yellow) */
+html.lw-themed .btn.grad,html.lw-themed .btn.on,html.lw-themed .th-seg button.on{color:var(--lw-on-accent,#fff)}
+html.lw-themed .btn.on svg{fill:var(--lw-on-accent,#fff)}
+html[data-lw-preset=contrast] .btn.ghost,html[data-lw-preset=contrast] .paste{border-color:#bbb}

@@ -49,6 +49,7 @@
     const b = LW.el('button', 'clip-reveal', 'Show in folder');
     b.onclick = () => LW.call('clip_reveal', r.path).then(x => { if (!x.ok) LW.toast(x.error, 'error'); });
     t.appendChild(b); host.appendChild(t);
+    LW.emit('clipSaved', { path: r.path, seconds: r.seconds }, t); // used by clipedit (adds "Edit")
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 7000);
   }
 

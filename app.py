@@ -306,11 +306,47 @@ def main():
     debug = "--debug" in sys.argv
     api = Api()
     index = resource_dir() / "ui" / "index.html"
+    state_file = Path.home() / ".lightweight" / "window.json"
+    try:
+        st = json.loads(state_file.read_text())
+    except Exception:
+        st = {}
+    geo = {"width": max(900, int(st.get("width", 1280))), "height": max(600, int(st.get("height", 800)))}
+    if "x" in st and "y" in st:
+        geo["x"], geo["y"] = int(st["x"]), int(st["y"])
     window = webview.create_window(
-        "Lightweight", url=str(index), js_api=api, width=1280, height=800,
+        "Lightweight", url=str(index), js_api=api, **geo,
+        maximized=bool(st.get("maximized", True)),
         min_size=(900, 600), background_color="#0e0e10", text_select=True,
     )
     api._set_window(window)
+
+    # Remember size / position / maximized state between launches.
+    def _save():
+        try:
+            state_file.parent.mkdir(parents=True, exist_ok=True)
+            state_file.write_text(json.dumps(st))
+        except Exception:
+            pass
+
+    def _on_resized(width, height):
+        if not st.get("maximized"):
+            st["width"], st["height"] = width, height
+
+    def _on_moved(x, y):
+        if not st.get("maximized"):
+            st["x"], st["y"] = x, y
+
+    def _set_max(v):
+        st["maximized"] = v
+
+    for name, fn in (("resized", _on_resized), ("moved", _on_moved),
+                     ("maximized", lambda: _set_max(True)), ("restored", lambda: _set_max(False)),
+                     ("closing", _save)):
+        try:
+            getattr(window.events, name).__iadd__(fn)
+        except Exception:
+            pass
     try:
         window.events.closed += api._shutdown
     except Exception:

@@ -8,7 +8,7 @@ from pathlib import Path
 from backend.resolver import ResolveError
 
 AV_TTL = 7 * 24 * 3600
-CACHE_FILE = Path(os.path.expanduser("~/.lightweight/cache/bp_avatars.json"))
+CACHE_FILE = Path(os.path.expanduser("~/.featherwatch/cache/bp_avatars.json"))
 _lock = threading.Lock()
 _av = {}  # login(lower) -> (ts, url|None, user_id)
 _loaded = [False]

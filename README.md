@@ -1,15 +1,19 @@
-# Lightweight-Everything
+# FeatherWatch
 
 **A tiny desktop app for watching Twitch, YouTube, Kick, and anything else [streamlink](https://streamlink.github.io/) supports.**
 Runs on Windows and macOS (Linux works too).
 
-Lightweight uses the webview your OS already has (WebView2 on Windows, WKWebView on macOS) through [pywebview](https://pywebview.flowrl.com/). It doesn't bundle Electron or Chromium, so the app is a few MB and doesn't need hundreds of MB of RAM just to start.
+FeatherWatch uses the webview your OS already has (WebView2 on Windows, WKWebView on macOS) through [pywebview](https://pywebview.flowrl.com/). It doesn't bundle Electron or Chromium, so the app is a few MB and doesn't need hundreds of MB of RAM just to start.
 
 ## Screenshots
 
-| Watching a stream | Browsing categories |
-|---|---|
-| ![Watching a stream with chat](docs/screenshots/watching.png) | ![Browsing Twitch categories](docs/screenshots/browse.png) |
+**Watching a stream with chat**
+
+![Watching a stream with chat](docs/screenshots/watching.webp)
+
+**Browsing Twitch categories**
+
+![Browsing Twitch categories](docs/screenshots/browse.webp)
 
 ---
 
@@ -35,7 +39,7 @@ Lightweight uses the webview your OS already has (WebView2 on Windows, WKWebView
 
 **Saving**
 - **Clip**: save the last 15/30/60/120 seconds of what you're watching
-- **Record to disk**: saves to `~/Videos/Lightweight` (`~/Movies/Lightweight` on macOS)
+- **Record to disk**: saves to `~/Videos/FeatherWatch` (`~/Movies/FeatherWatch` on macOS)
 
 ### Keyboard shortcuts
 
@@ -70,7 +74,7 @@ Twitch (live, VODs, clips), YouTube (live and VOD, using yt-dlp as a fallback), 
 
 **Windows (PowerShell)**
 ```powershell
-git clone https://github.com/Akpoikar/Lightweight-Everything.git Lightweight; cd Lightweight
+git clone https://github.com/Akpoikar/FeatherWatch.git FeatherWatch; cd FeatherWatch
 py -3 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -80,7 +84,7 @@ python app.py
 
 **macOS (zsh)**
 ```zsh
-git clone https://github.com/Akpoikar/Lightweight-Everything.git Lightweight && cd Lightweight
+git clone https://github.com/Akpoikar/FeatherWatch.git FeatherWatch && cd FeatherWatch
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -101,7 +105,7 @@ python app.py
 Browsing categories and faster live checks use the official Twitch API. Everything else works without it.
 
 1. Create an app at <https://dev.twitch.tv/console> (Client Type: Confidential).
-2. Copy `.env.example` to `.env` (next to `app.py`, or in `~/.lightweight/`) and fill in `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`.
+2. Copy `.env.example` to `.env` (next to `app.py`, or in `~/.featherwatch/`) and fill in `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`.
 
 `.env` is git-ignored, so your keys stay local.
 
@@ -118,10 +122,10 @@ python tools/import_follows.py follows.txt
 The build scripts create `.venv` if it doesn't exist, install `requirements-dev.txt`, and run PyInstaller. The finished app goes to `dist/`.
 
 ```zsh
-./build/build.sh            # macOS / Linux → dist/Lightweight.app (macOS)
+./build/build.sh            # macOS / Linux → dist/FeatherWatch.app (macOS)
 ```
 ```powershell
-.\build\build.ps1           # Windows → dist\Lightweight\Lightweight.exe
+.\build\build.ps1           # Windows → dist\FeatherWatch\FeatherWatch.exe
 ```
 
 PyInstaller's temporary files go to `.pyi-build/`, which is git-ignored.
@@ -131,7 +135,7 @@ PyInstaller's temporary files go to `.pyi-build/`, which is git-ignored.
 History, follows, VOD positions and settings are all stored in one JSON file:
 
 ```
-~/.lightweight/data.json        (Windows: %USERPROFILE%\.lightweight\data.json)
+~/.featherwatch/data.json        (Windows: %USERPROFILE%\.featherwatch\data.json)
 ```
 
 To reset the app, delete that file.
@@ -142,7 +146,7 @@ To reset the app, delete that file.
 |---|---|
 | **Ads on Twitch** | Ad segments are removed using streamlink's own Twitch ad detection (same as streamlink → VLC). During an ad break you may see a short pause instead of the ad. |
 | **"No playable streams" / nothing plays** | The channel is probably offline. Follow it and the sidebar will show when it goes live. |
-| **macOS: "app can't be opened" (Gatekeeper)** | The build isn't signed. Right-click the app → **Open**, or run `xattr -dr com.apple.quarantine dist/Lightweight.app`. |
+| **macOS: "app can't be opened" (Gatekeeper)** | The build isn't signed. Right-click the app → **Open**, or run `xattr -dr com.apple.quarantine dist/FeatherWatch.app`. |
 | **macOS: `NotOpenSSLWarning` / LibreSSL warning** | Apple's system Python is linked against LibreSSL. Install Python from [python.org](https://www.python.org/downloads/) or Homebrew (`brew install python`) and create the venv again. |
 | **Windows: blank window** | Install or repair the WebView2 runtime. |
 | **"Open in VLC" does nothing** | Install VLC, or set `player_path` in settings to your VLC/mpv executable. |
@@ -150,12 +154,12 @@ To reset the app, delete that file.
 ## Project structure
 
 ```
-Lightweight/
+FeatherWatch/
 ├── app.py               # entry point: pywebview window + JS API
 ├── backend/
 │   ├── resolver.py      # streamlink / yt-dlp URL resolution
 │   ├── proxy.py         # local HLS proxy (127.0.0.1, rewrites m3u8)
-│   ├── store.py         # ~/.lightweight/data.json
+│   ├── store.py         # ~/.featherwatch/data.json
 │   ├── recorder.py      # record streams to disk
 │   ├── live.py          # background live-status checker
 │   ├── browse.py        # Twitch Helix API (browse, live status)

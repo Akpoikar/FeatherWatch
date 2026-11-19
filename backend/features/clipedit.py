@@ -25,7 +25,7 @@ from urllib.parse import urlparse, parse_qs
 from backend.resolver import ResolveError
 
 EXTS = (".mp4", ".ts", ".mkv", ".mov", ".gif", ".m4a", ".webm")
-CACHE = Path.home() / ".lightweight" / "cache" / "clipedit"
+CACHE = Path.home() / ".featherwatch" / "cache" / "clipedit"
 _NOWIN = {"creationflags": 0x08000000} if sys.platform == "win32" else {}
 _SAFE = re.compile(r'[\\/:*?"<>|\x00-\x1f]+')
 

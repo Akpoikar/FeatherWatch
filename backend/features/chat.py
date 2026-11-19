@@ -1,16 +1,16 @@
 """Chat feature: third-party emotes (7TV/BTTV/FFZ), badges (ivr.fi), prefs, pop-out window.
 
 No Twitch private client-id is used. All lists are cached in memory and in
-~/.lightweight/cache/chat_*.json (TTL), so fetching is cheap and CORS-free.
+~/.featherwatch/cache/chat_*.json (TTL), so fetching is cheap and CORS-free.
 """
 import json
 import threading
 import time
 from pathlib import Path
 
-CACHE_DIR = Path.home() / ".lightweight" / "cache"
+CACHE_DIR = Path.home() / ".featherwatch" / "cache"
 TTL = 6 * 3600
-UA = {"User-Agent": "Lightweight/1.0"}
+UA = {"User-Agent": "FeatherWatch/1.0"}
 
 DEFAULT_PREFS = {
     "highlights": [],
@@ -245,7 +245,7 @@ def chat_popout(api, channel):
             pass
     page = Path(__file__).resolve().parents[2] / "ui" / "features" / "chat_popout.html"
     w = webview.create_window(
-        "#%s chat · Lightweight" % ch, url=page.as_uri() + "?channel=" + ch,
+        "#%s chat · FeatherWatch" % ch, url=page.as_uri() + "?channel=" + ch,
         js_api=PopoutApi(api), width=380, height=680, min_size=(260, 300),
         on_top=True, background_color="#16161c",
     )

@@ -27,7 +27,7 @@
     <button class="ce-folder btn ghost" type="button">Open folder</button>
     <button class="ce-x" type="button" title="Close (Esc)">✕</button>
   </div>
-  <div class="ce-warn" hidden>ffmpeg was not found on your PATH – previewing works, but trimming/exporting is disabled. Install ffmpeg and restart Lightweight.</div>
+  <div class="ce-warn" hidden>ffmpeg was not found on your PATH – previewing works, but trimming/exporting is disabled. Install ffmpeg and restart FeatherWatch.</div>
   <div class="ce-lib"><div class="ce-grid"></div></div>
   <div class="ce-ed" hidden>
     <div class="ce-stage"><video class="ce-video" playsinline preload="auto"></video></div>

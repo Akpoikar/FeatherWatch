@@ -45,7 +45,7 @@
       view.scrollTop = 0;
       LW.showView('Channel');
       view.classList.remove('ch-in'); void view.offsetWidth; view.classList.add('ch-in');
-      document.title = login + ' · Lightweight';
+      document.title = login + ' · FeatherWatch';
       let r = await call('channel_info', login);
       if (tok !== C.token) return;
       if (!r.ok) {

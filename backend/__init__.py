@@ -1,1 +1,1 @@
-"""Lightweight backend: resolver, HLS proxy, store, recorder, live checker."""
+"""FeatherWatch backend: resolver, HLS proxy, store, recorder, live checker."""

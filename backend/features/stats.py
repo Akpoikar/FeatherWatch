@@ -1,4 +1,4 @@
-"""Stats feature: watch-time tracking stored in ~/.lightweight/stats.json.
+"""Stats feature: watch-time tracking stored in ~/.featherwatch/stats.json.
 
 Schema: {"version":1, "items":{id:{seconds,title,author,login,platform,kind,category,avatar,thumbnail,url,sessions,last}},
          "days":{"YYYY-MM-DD":{"total":s,"ch":{login:s},"cat":{cat:s},"pf":{platform:s},"hours":{"wd-h":s}}}}
@@ -15,7 +15,7 @@ from pathlib import Path
 
 from backend.resolver import ResolveError
 
-STATS_FILE = Path.home() / ".lightweight" / "stats.json"
+STATS_FILE = Path.home() / ".featherwatch" / "stats.json"
 MAX_CHUNK = 600  # a single flush can never add more than this
 
 
@@ -93,7 +93,7 @@ class StatsStore(object):
         snap = self.snapshot()
         out_dir = Path(out_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
-        path = out_dir / ("lightweight-stats-%s.csv" % time.strftime("%Y%m%d-%H%M%S"))
+        path = out_dir / ("featherwatch-stats-%s.csv" % time.strftime("%Y%m%d-%H%M%S"))
         with open(path, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             w.writerow(["date", "type", "key", "seconds", "hours"])

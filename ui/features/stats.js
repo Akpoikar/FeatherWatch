@@ -28,21 +28,31 @@
     if (window.pywebview) LW.call('stats_add', it.id, sec, meta).then(r => { if (r && !r.ok) console.warn('[stats]', r.error); });
     else mockAdd(it, sec, meta);
   }
-  function watching() {
-    const v = LW.video, S = LW.S;
-    if (!v || !S || !S.item || v.paused || v.ended || v.seeking || v.readyState < 3) return false;
+  // what is being watched right now: the main player, or the multi-view tile that has audio
+  function source() {
+    const mv = document.getElementById('viewMultiview');
+    if (mv && mv.classList.contains('active') && LW.multiview) {
+      const t = LW.multiview.tiles().find(x => x.video && !x.video.muted && x.item && x.item.id);
+      return t ? { item: t.item, video: t.video, mv: true } : null;
+    }
+    return LW.S && LW.S.item ? { item: LW.S.item, video: LW.video, mv: false } : null;
+  }
+  function watching(src) {
+    const v = src && src.video;
+    if (!v || v.paused || v.ended || v.seeking || v.readyState < 3) return false;
     const pip = document.pictureInPictureElement === v;
     if (!pip && document.visibilityState !== 'visible') return false;
+    if (src.mv) return true;
     const vp = document.getElementById('viewPlayer');
     return pip || !vp || vp.classList.contains('active');
   }
   function tick() {
     const now = Date.now(), dt = Math.min(5, (now - (T.last || now)) / 1000);
     T.last = now;
-    const S = LW.S;
-    if (S && S.item && (!T.item || T.item.id !== S.item.id)) { flush(); T.item = S.item; T.newSession = true; }
-    if (S && S.item && T.item) T.item = S.item; // keep metadata fresh (category may update)
-    if (watching()) { T.acc += dt; T.sinceFlush += dt; }
+    const src = source(), cur = src && src.item;
+    if (cur && (!T.item || T.item.id !== cur.id)) { flush(); T.item = cur; T.newSession = true; }
+    if (cur && T.item) T.item = cur; // keep metadata fresh (category may update)
+    if (watching(src)) { T.acc += dt; T.sinceFlush += dt; }
     if (T.sinceFlush >= 30 || T.acc >= 30) flush();
   }
   function hookTracking() {

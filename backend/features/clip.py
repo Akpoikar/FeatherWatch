@@ -248,7 +248,7 @@ def _record_dir(api):
     except Exception:
         pass
     if not d:
-        d = str(Path.home() / ("Movies" if sys.platform == "darwin" else "Videos") / "Lightweight")
+        d = str(Path.home() / ("Movies" if sys.platform == "darwin" else "Videos") / "FeatherWatch")
     p = Path(os.path.expanduser(d))
     p.mkdir(parents=True, exist_ok=True)
     return p

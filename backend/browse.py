@@ -1,7 +1,7 @@
 """Browse Twitch top games / live streams via the official Helix API (app access token).
 
 Credentials come from env vars TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET, which may be
-set in a `.env` file next to app.py or in ~/.lightweight/.env (real env vars win).
+set in a `.env` file next to app.py or in ~/.featherwatch/.env (real env vars win).
 """
 import os
 import threading

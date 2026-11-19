@@ -1,4 +1,4 @@
-"""Thread-safe JSON store at ~/.lightweight/data.json with atomic writes."""
+"""Thread-safe JSON store at ~/.featherwatch/data.json with atomic writes."""
 import json
 import os
 import sys
@@ -7,14 +7,14 @@ import threading
 import time
 from pathlib import Path
 
-DATA_DIR = Path.home() / ".lightweight"
+DATA_DIR = Path.home() / ".featherwatch"
 DATA_FILE = DATA_DIR / "data.json"
 MAX_HISTORY = 200
 
 
 def default_record_dir():
     base = "Movies" if sys.platform == "darwin" else "Videos"
-    return str(Path.home() / base / "Lightweight")
+    return str(Path.home() / base / "FeatherWatch")
 
 
 DEFAULT_SETTINGS = {

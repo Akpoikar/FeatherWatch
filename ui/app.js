@@ -1,4 +1,4 @@
-/* Lightweight – frontend (vanilla JS, no build step) */
+/* FeatherWatch – frontend (vanilla JS, no build step) */
 (function () {
   'use strict';
 
@@ -36,8 +36,8 @@
     let follows = ['twitch:aurora_plays', 'twitch:pixelchef', 'twitch:speedrunsam', 'twitch:nightowl'];
     let history = ['twitch-vod:2001', 'youtube:abc123', 'twitch:pixelchef'];
     items['twitch:pixelchef'].last_watched = now - 600;
-    let settings = { player_path: '', default_quality: 'best', record_dir: '~/Movies/Lightweight', live_poll_minutes: 3, low_latency: true, theme: 'dark' };
-    const recs = [{ item_id: 'twitch:aurora_plays', path: '~/Movies/Lightweight/aurora_plays-2026-11-18.ts', started: now - 90000, active: false }];
+    let settings = { player_path: '', default_quality: 'best', record_dir: '~/Movies/FeatherWatch', live_poll_minutes: 3, low_latency: true, theme: 'dark' };
+    const recs = [{ item_id: 'twitch:aurora_plays', path: '~/Movies/FeatherWatch/aurora_plays-2026-11-18.ts', started: now - 90000, active: false }];
     const delay = (v, ms) => new Promise(r => setTimeout(() => r(v), ms || 250));
     const list = ids => ids.map(i => items[i]).filter(Boolean);
     return {
@@ -57,7 +57,7 @@
         return delay({ ok: true, src: TEST_HLS, kind: 'hls', is_live: !!it.is_live }, 500);
       },
       open_external: () => delay({ ok: true }),
-      record_start(id) { const r = { item_id: id, path: '~/Movies/Lightweight/' + id.replace(/\W/g, '_') + '.ts', started: Date.now() / 1000, active: true }; recs.unshift(r); setTimeout(() => window.lw.onEvent({ type: 'record', item_id: id, state: 'started', path: r.path })); return delay({ ok: true, path: r.path }); },
+      record_start(id) { const r = { item_id: id, path: '~/Movies/FeatherWatch/' + id.replace(/\W/g, '_') + '.ts', started: Date.now() / 1000, active: true }; recs.unshift(r); setTimeout(() => window.lw.onEvent({ type: 'record', item_id: id, state: 'started', path: r.path })); return delay({ ok: true, path: r.path }); },
       record_stop(id) { recs.forEach(r => { if (r.item_id === id) r.active = false; }); setTimeout(() => window.lw.onEvent({ type: 'record', item_id: id, state: 'stopped' })); return delay({ ok: true }); },
       recordings: () => delay({ ok: true, items: recs.slice() }),
       history: () => delay({ ok: true, items: list(history) }),
@@ -343,7 +343,7 @@
     LW.emit('itemOpened', it);
     $('#infoLive').classList.toggle('on', !!it.is_live);
     setViewers(it.is_live && it.viewers != null ? it.viewers : null);
-    document.title = (it.author || it.title || 'Lightweight') + ' · Lightweight';
+    document.title = (it.author || it.title || 'FeatherWatch') + ' · FeatherWatch';
   }
   function setAvatar(it) {
     const a = $('#infoAvatar');
@@ -703,7 +703,7 @@
       B.cursor = null; B.items = 0; grid.innerHTML = skeletons(8); more.hidden = true;
       const st = await call('browse_status');
       if (st.ok && !st.configured) {
-        grid.innerHTML = '<div class="empty">Twitch API not configured. Create an app at dev.twitch.tv/console, then put <code>TWITCH_CLIENT_ID</code> and <code>TWITCH_CLIENT_SECRET</code> in a <code>.env</code> file next to app.py (or ~/.lightweight/.env) and restart.</div>';
+        grid.innerHTML = '<div class="empty">Twitch API not configured. Create an app at dev.twitch.tv/console, then put <code>TWITCH_CLIENT_ID</code> and <code>TWITCH_CLIENT_SECRET</code> in a <code>.env</code> file next to app.py (or ~/.featherwatch/.env) and restart.</div>';
         return;
       }
     }
@@ -788,6 +788,6 @@
   else {
     window.addEventListener('pywebviewready', () => boot(window.pywebview.api));
     // plain browser: fall back to mock if pywebview doesn't show up quickly
-    setTimeout(() => { if (!booted && !window.pywebview) { console.info('[lightweight] pywebview not found – using mock API'); boot(makeMock()); } }, 600);
+    setTimeout(() => { if (!booted && !window.pywebview) { console.info('[featherwatch] pywebview not found – using mock API'); boot(makeMock()); } }, 600);
   }
 })();

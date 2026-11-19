@@ -1,4 +1,4 @@
-"""Lightweight – tiny desktop player for Twitch / YouTube / anything streamlink or yt-dlp understands."""
+"""FeatherWatch – tiny desktop player for Twitch / YouTube / anything streamlink or yt-dlp understands."""
 import functools
 import json
 import os
@@ -21,7 +21,15 @@ from backend.live import LiveChecker  # noqa: E402
 from backend import profile  # noqa: E402
 from backend.browse import TwitchBrowser, BrowseError, load_dotenv  # noqa: E402
 
-load_dotenv(Path(__file__).resolve().parent / ".env", Path.home() / ".lightweight" / ".env")
+# One-time migration from the app's old name (Lightweight) so follows/settings carry over.
+_old_dir, _new_dir = Path.home() / ".lightweight", Path.home() / ".featherwatch"
+if _old_dir.is_dir() and not _new_dir.exists():
+    try:
+        _old_dir.rename(_new_dir)
+    except OSError:
+        pass
+
+load_dotenv(Path(__file__).resolve().parent / ".env", Path.home() / ".featherwatch" / ".env")
 
 
 def resource_dir():
@@ -306,7 +314,7 @@ def main():
     debug = "--debug" in sys.argv
     api = Api()
     index = resource_dir() / "ui" / "index.html"
-    state_file = Path.home() / ".lightweight" / "window.json"
+    state_file = Path.home() / ".featherwatch" / "window.json"
     try:
         st = json.loads(state_file.read_text())
     except Exception:
@@ -315,7 +323,7 @@ def main():
     if "x" in st and "y" in st:
         geo["x"], geo["y"] = int(st["x"]), int(st["y"])
     window = webview.create_window(
-        "Lightweight", url=str(index), js_api=api, **geo,
+        "FeatherWatch", url=str(index), js_api=api, **geo,
         maximized=bool(st.get("maximized", True)),
         min_size=(900, 600), background_color="#0e0e10", text_select=True,
     )

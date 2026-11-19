@@ -37,6 +37,13 @@ class _AdState:
 
 
 class HLSProxy:
+    def proxies_for(self, url):
+        fn = self.proxy_selector
+        try:
+            return fn(url) if fn else None
+        except Exception:
+            return None
+
     def __init__(self, http_session=None, on_event=None):
         self.http = http_session or requests.Session()
         self.on_event = on_event
@@ -48,6 +55,8 @@ class HLSProxy:
         # observers (e.g. backend/features/clip.py): objects with
         #   on_playlist(url, text), wants(url) -> bool, on_segment(url, data)
         self.observers = []
+        # netproxy feature hook: fn(url) -> proxies dict for requests (None = session default)
+        self.proxy_selector = None
 
     def _notify(self, meth, *args):
         for o in list(self.observers):
@@ -282,7 +291,8 @@ class _Handler(BaseHTTPRequestHandler):
         try:
             # bypass streamlink's raise-on-error wrapper so upstream status codes pass through
             r = requests.Session.request(owner.http, "GET", upstream, headers=headers, stream=True,
-                                         timeout=20, allow_redirects=True)
+                                         timeout=20, allow_redirects=True,
+                                         proxies=owner.proxies_for(upstream))  # netproxy scope
         except Exception as e:
             return self._err(502, "upstream error: %s" % e)
         try:

@@ -88,7 +88,7 @@ class Recorder:
                     finally:
                         r.close()
                 else:
-                    from streamlink.stream import HLSStream
+                    from streamlink.stream.hls import HLSStream
                     hs = HLSStream(self.resolver.session, stream["url"], headers=stream["headers"])
                     fd = rec.handle = hs.open()
                     try:

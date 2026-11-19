@@ -1,0 +1,6 @@
+.np-box { border: 1px solid rgba(127,127,127,.25); border-radius: 8px; padding: 8px 12px 10px; margin: 10px 0; }
+.np-box legend { padding: 0 6px; font-size: 12px; opacity: .75; }
+.np-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+.np-out { font-size: 12px; opacity: .85; word-break: break-all; }
+.np-ok { color: #3ecf8e; } .np-err { color: #ff6b6b; }
+#npUrl.np-bad { outline: 1px solid #ff6b6b; }

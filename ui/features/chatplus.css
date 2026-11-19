@@ -1,0 +1,29 @@
+/* chatplus – mentions, mutes, emote picker */
+.lwc .msg.cp-muted{display:none}
+.lwc .msg.cp-mention{background:color-mix(in srgb,var(--a1) 20%,transparent);box-shadow:inset 3px 0 0 var(--a1);border-radius:0 6px 6px 0}
+.lwc .msg[data-user]>b{cursor:pointer}
+.lwc .msg[data-user]>b:hover{text-decoration:underline}
+.lwc-hbtn.cp-hbtn.on{color:var(--a1)}
+.cp-picker{position:absolute;top:46px;left:8px;right:8px;z-index:6;background:var(--bg3);border:1px solid var(--line);border-radius:var(--r,10px);box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:8px;font-size:12px;max-height:min(420px,calc(100% - 60px));animation:lwcIn .16s var(--ease,ease-out) both}
+.cp-picker[hidden]{display:none}
+.cp-row{display:flex;gap:8px;align-items:center}
+.cp-picker input{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:12px inherit;color:var(--fg)}
+.cp-count{color:var(--fg2,#999);font-variant-numeric:tabular-nums}
+.cp-tabs{display:flex;gap:4px;flex-wrap:wrap}
+.cp-tabs button{background:var(--bg2);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:2px 9px;font-size:11px;cursor:pointer}
+.cp-tabs button.on{background:var(--a1);border-color:var(--a1);color:#fff}
+.cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:2px;overflow:auto;min-height:60px}
+.cp-emo{background:none;border:0;border-radius:6px;height:36px;display:grid;place-items:center;cursor:pointer;padding:2px}
+.cp-emo:hover{background:var(--bg2)}
+.cp-emo img{max-width:32px;max-height:28px}
+.cp-hint,.cp-empty{color:var(--fg2,#999);font-size:11px}
+.cp-empty{grid-column:1/-1;padding:8px;text-align:center;list-style:none}
+.cp-l{display:flex;flex-direction:column;gap:4px;font-weight:600}
+.cp-mlist{list-style:none;margin:0;padding:0;overflow:auto;max-height:220px}
+.cp-mlist li{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
+.cp-mlist button,.cp-menu button{background:none;border:0;color:var(--a1);cursor:pointer;font:inherit}
+.cp-menu{position:fixed;z-index:1000;background:var(--bg3);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:4px;display:flex;flex-direction:column;min-width:140px;font-size:12px;animation:lwcIn .12s var(--ease,ease-out) both}
+.cp-menu-h{padding:4px 8px;font-weight:700;color:var(--fg2,#999)}
+.cp-menu button{text-align:left;padding:6px 8px;border-radius:5px;color:var(--fg)}
+.cp-menu button:hover{background:var(--bg2)}
+@media (prefers-reduced-motion:reduce){.cp-picker,.cp-menu{animation:none}}

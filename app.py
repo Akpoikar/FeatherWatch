@@ -13,6 +13,7 @@ from pathlib import Path
 warnings.filterwarnings("ignore")
 os.environ.setdefault("PYTHONWARNINGS", "ignore")
 
+import updater_boot as _ub; _ub.apply_overlay()  # noqa: E402,E702  (must run before `backend` imports yt_dlp)
 from backend.store import Store  # noqa: E402
 from backend.resolver import Resolver, ResolveError  # noqa: E402
 from backend.proxy import HLSProxy  # noqa: E402
@@ -29,7 +30,19 @@ if _old_dir.is_dir() and not _new_dir.exists():
     except OSError:
         pass
 
-load_dotenv(Path(__file__).resolve().parent / ".env", Path.home() / ".featherwatch" / ".env")
+def _dotenv_paths():
+    """Where .env may live. Earlier paths win (load_dotenv never overrides an already-set key)."""
+    paths = [Path(__file__).resolve().parent / ".env"]  # source checkout: next to app.py
+    if getattr(sys, "frozen", False):
+        exe = Path(sys.executable).resolve()
+        # standalone app: next to FeatherWatch.exe (Windows) or next to FeatherWatch.app (macOS)
+        app_bundle = next((p for p in exe.parents if p.suffix == ".app"), None)
+        paths.append((app_bundle.parent if app_bundle else exe.parent) / ".env")
+    paths.append(Path.home() / ".featherwatch" / ".env")  # per-user, works for every install
+    return paths
+
+
+load_dotenv(*_dotenv_paths())
 
 
 def resource_dir():

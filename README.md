@@ -17,47 +17,113 @@ FeatherWatch uses the webview your OS already has (WebView2 on Windows, WKWebVie
 
 ---
 
-## Features
+## Features at a glance
 
-**Watching**
-- **Open any link**: paste (`Ctrl/Cmd+V` anywhere), type, or drag in a channel name, Twitch channel/VOD/clip, YouTube video/live/@channel, Kick, and more. A bare name is treated as a Twitch channel.
-- **Custom player** (hls.js through a local HLS proxy): DVR seek with a **Go live** button, quality and speed selection, theatre mode, fullscreen, Picture-in-Picture
-- **Twitch ad filtering**: ad segments are stripped in the proxy
-- **VOD resume**: continues from where you stopped
-- **Multiview**: watch 2–4 streams in a grid, pick which one has audio
-- **Open in VLC / mpv / IINA**: hands the stream to an external player
+| Area | What you get |
+|---|---|
+| **Watching** | Paste any link, custom player with rewind on live streams, Twitch ad skipping, resume VODs, multi-view (up to 4 streams), open in VLC/mpv |
+| **Following** | Sidebar of your channels with icons, live status and viewer counts, sidebar search, channel pages with past broadcasts and clips, Browse Twitch |
+| **Chat** | Twitch chat with 7TV / BTTV / FFZ emotes, badges, keyword highlights, bot filter, pop-out window |
+| **Saving** | Record streams, clip the last 15 s–2 min, trim and export clips (mp4 / gif / m4a) |
+| **Stats** | How much you watch, what, and when |
+| **Appearance** | 6 themes, accent colour, layout options |
+| **Updates** | Keeps streamlink and yt-dlp current from inside the app |
 
-**Following & discovery**
-- **Sidebar**: followed channels (live first, with viewers and category) and recently watched, refreshed automatically
-- **Channel pages**: profile, past broadcasts, highlights, uploads and clips
-- **Browse Twitch**: top categories and live streams (needs Twitch API keys, see below)
-- **Import follows** from your Twitch "Following" page with `tools/import_follows.py`
+## Feature guide
 
-**Chat**
-- Read-only Twitch chat with 7TV / BTTV / FFZ emotes and badges
-- Keyword highlights, bot filter, and a pop-out chat window
+### Opening something to watch
+Type a channel name (e.g. `zackrawrr`) or paste any link into the top bar and press **Enter**. You can also press `Ctrl/Cmd+V` anywhere in the window, or drag a link onto it. A bare name is treated as a Twitch channel. Works with Twitch channels, past broadcasts (VODs) and clips, YouTube videos, live streams and `@channel/live` pages, Kick, and [anything streamlink supports](https://streamlink.github.io/plugins.html).
 
-**Saving**
-- **Clip**: save the last 15/30/60/120 seconds of what you're watching
-- **Record to disk**: saves to `~/Videos/FeatherWatch` (`~/Movies/FeatherWatch` on macOS)
+### The player
+- **Live rewind (DVR):** drag the seek bar back to rewatch something on a live stream; the **LIVE** button jumps back to the live edge. The number next to it shows how far behind live you are.
+- **Quality and speed:** the sliders icon picks quality; speed (0.5×–2×) is available on VODs and videos.
+- **Theatre mode** (`T`), **fullscreen** (`F`), **Picture-in-Picture** (`P`, floats the video over other apps), **mute** (`M`).
+- **Resume:** VODs and videos remember where you stopped and continue from there (shown in *Continue watching* on Home).
+- **Twitch ad skipping:** FeatherWatch removes Twitch's ad segments using streamlink's own ad detection, the same way `streamlink` does for VLC. During an ad break you see a short pause instead of the ad.
+- **Open in VLC / mpv / IINA:** hands the stream to an external player (the button under the player). Set a custom player path in **Settings** if it isn't found.
 
-### Keyboard shortcuts
+### Multi-view (up to 4 streams)
+Click **Multi-view** in the top bar, then add streams by typing a name, clicking a live channel in the picker, **dragging a channel from the sidebar** onto the grid, right-clicking a sidebar channel → *Add to multi-view*, or **+ Multi-view** under the player.
+- Only one tile plays sound. Click a tile (or press `1`–`4`) to switch audio.
+- Hover a tile to change its quality, make it the big tile, fullscreen it, open it in the main player or remove it.
+- Layouts: Auto, 1, 2 side by side, 1 big + 2, 2×2. Your last set of streams is remembered.
+
+### Sidebar: followed channels
+- **Follow** a channel with the heart button under the player or on its channel page. Live channels go to the top, sorted by viewers, with a red dot, the game and the viewer count. Offline channels are greyed out.
+- **Click a row** to watch. **Click the round icon** to open the channel page instead. **Right-click** for more (watch, unfollow, copy link, add to multi-view).
+- **Recently watched** is listed below, with progress bars for VODs. Hover → ✕ to remove.
+- **Search:** press `/` (or click the box at the top) and type to filter by name, title or game. **Enter** opens the first match; if nothing matches you can open what you typed as a channel.
+- Live status refreshes every few minutes (change the interval in Settings), or press the refresh button in the top bar.
+
+### Channel pages
+Click a streamer's **icon or name** anywhere (sidebar, under the player, on cards). You get a banner, their icon (with a ring when live), bio, links, a Follow button and tabs:
+- **Home:** live preview (if live), About, recent broadcasts.
+- **Videos:** past broadcasts, highlights and uploads. Click one to watch it in the app; it remembers your position.
+- **Clips** and **About**.
+
+### Browse Twitch *(needs [Twitch API keys](#twitch-api-keys-optional-recommended))*
+Click **Browse** in the top bar for top categories and live streams. Search for any channel or game, filter by **language**, sort by most viewers, recently started, or *hidden gems* (smallest streams first). Cards show channel icons and how long each stream has been live.
+
+### Chat
+Shows to the right of the player for Twitch channels (`C` toggles it). It's read-only (you can't send messages).
+- Emotes from Twitch, **7TV, BTTV and FFZ** are shown as images; badges for mods, VIPs, subs and the broadcaster.
+- Click the **gear** in the chat header for: **highlight keywords** (messages containing them are tinted, optional sound), **hide bots** (Nightbot, StreamElements…, list editable), timestamps, font size, and turning third-party emotes on or off.
+- Scroll up to pause the chat; a *More messages below* button takes you back.
+- The **pop-out** button opens chat in its own small window that stays on top of other apps.
+
+### Recording
+Press the **red dot** in the player controls to record the stream to a file; press it again to stop. Recordings go to `~/Movies/FeatherWatch` (macOS) or `~/Videos/FeatherWatch` (Windows), changeable in Settings. Recordings are also listed on Home.
+
+### Clips and the clip editor
+- Press `X` (or the **scissors** button) to save the last moments you watched. The scissors menu lets you pick 15 s, 30 s, 1 min or 2 min; `X` uses your last choice. The clip ends at what's on screen, even if you rewound.
+- The "Clip saved" message has **Show in folder** and **Edit**.
+- **Clip editor:** drag the start/end handles on the timeline (or press `I` / `O` at the playhead), preview with loop, name the file and export:
+  - **MP4 fast** (instant, cuts on keyframes) or **MP4 precise** (re-encodes, exact cut)
+  - **GIF** (480 px, 15 fps, up to 60 s)
+  - **Audio only** (m4a)
+- **Clips library:** *Clips* next to Recordings on Home, or *Clips library…* in the scissors menu, lists all your clips with thumbnails.
+- Trimming and exporting need **ffmpeg** (see [Requirements](#requirements)). Saving clips works without it (as `.ts` files).
+
+### Watch-time stats
+Click **Stats** in the top bar (or type "stats" in `Ctrl/Cmd+K`). Only time when video is actually playing counts (including the multi-view tile with sound). Pick 7 days, 30 days, 1 year or all time to see:
+- total hours, day streak, average per day, top channel
+- a daily chart, your top channels and games, a heatmap of when you watch (day × hour), and your most rewatched VODs
+- **Export CSV** saves everything to your Downloads folder.
+
+### Appearance
+**Settings** (gear icon) → **Appearance**. Changes preview instantly.
+- Themes: **Midnight** (default), **Light**, **OLED black**, **Nord**, **Warm sepia**, **High contrast**
+- Accent colour: presets or any custom colour
+- Layout: font size, sidebar width, compact sidebar, card size, corner roundness, hide offline channels, reduce animations
+
+### Updates
+Twitch and YouTube change often, and old versions of streamlink / yt-dlp stop working. **Settings → Updates** shows the installed and latest versions:
+- FeatherWatch checks once a day and (by default) installs new versions automatically; then click **Restart app**.
+- **Check now** / **Update now** do it on demand. Turn off auto-install to only get notified.
+- Works in the standalone app too: updates are downloaded from PyPI, verified, and loaded on next start. If an update ever fails to load, FeatherWatch falls back to the built-in version automatically.
+
+### Command palette and shortcuts
+`Ctrl/Cmd+K` opens a search over your channels and history. Type a link to open it, "stats" for stats, or "theme" to switch themes. Press `?` to see all shortcuts.
 
 | Key | Action |
 |---|---|
 | `Space` / `K` | Play / pause |
-| `←` / `→` | Seek back / forward 10 s |
-| `J` / `L` | Seek back / forward 10 s |
+| `←` / `→`, `J` / `L` | Seek back / forward 10 s |
+| `↑` / `↓` | Volume up / down |
 | `F` | Fullscreen |
 | `M` | Mute |
 | `T` | Theatre mode |
 | `C` | Toggle chat |
+| `P` | Picture-in-Picture |
 | `X` | Clip the last N seconds |
-| `/` | Search channels |
-| `1`–`4` | Multiview: switch audio to tile |
+| `/` | Search channels in the sidebar |
+| `1`–`4` | Multi-view: switch audio to tile |
+| `Esc` | Close dialog / leave theatre |
 | `?` | Show shortcuts |
 | `Ctrl/Cmd + K` | Command palette |
 | `Ctrl/Cmd + V` | Paste a link and play it |
+
+Clip editor: `I` / `O` set in/out, `Space` play, `←` / `→` step (`Shift` = 1 s), `Home` / `End` jump to in/out.
 
 ## Supported sites
 
@@ -65,12 +131,41 @@ Twitch (live, VODs, clips), YouTube (live and VOD, using yt-dlp as a fallback), 
 
 ## Requirements
 
-- **Python 3.9+**
-- **Windows**: the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/). It comes preinstalled on Windows 10 and 11.
-- **macOS**: nothing extra
-- **Optional**: [VLC](https://www.videolan.org/) or [mpv](https://mpv.io/) for the "Open in VLC" button
+- **Python 3.10+** (developed on 3.14). macOS's system Python 3.9 is too old for current yt-dlp; use Homebrew (`brew install python`) or [python.org](https://www.python.org/downloads/).
+- **Windows**: the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/) (preinstalled on Windows 10/11). **macOS**: nothing extra.
+- **Optional**
+  - [VLC](https://www.videolan.org/) or [mpv](https://mpv.io/) for "Open in VLC/mpv"
+  - **ffmpeg** for clip editor export and mp4 remux: `brew install ffmpeg` / `winget install Gyan.FFmpeg`
+  - **deno**, the JS runtime yt-dlp uses for full YouTube format support: `brew install deno` / `winget install DenoLand.Deno` (the `yt-dlp-ejs` package from `requirements.txt` provides the scripts it runs)
+
+On macOS, FeatherWatch also looks in `/opt/homebrew/bin` and `/usr/local/bin`, so Homebrew's ffmpeg and deno are found even when the app is opened from Finder.
+
+## Twitch API keys (optional, recommended)
+
+| With keys | Without keys |
+|---|---|
+| Viewer counts in the sidebar, fast live checks (all follows in one request), Browse (categories, search, filters), channel banners, channel videos & clips via the official API | Playing anything, chat, following with live status (checked one by one via streamlink, no viewer counts), channel pages and VODs (via yt-dlp), recording, clips, stats, themes |
+
+1. Go to <https://dev.twitch.tv/console> → **Register Your Application**.
+2. OAuth Redirect URL: `http://localhost` · Category: **Application Integration** · Client Type: **Confidential**.
+3. Copy the Client ID and create a Client Secret.
+4. Copy `.env.example` to `.env` **next to `app.py`** or to **`~/.featherwatch/.env`**, and fill in:
+   ```
+   TWITCH_CLIENT_ID=...
+   TWITCH_CLIENT_SECRET=...
+   ```
+Real environment variables override `.env`. `.env` is git-ignored.
 
 ## Install & run
+
+**macOS (zsh)**
+```zsh
+git clone https://github.com/Akpoikar/FeatherWatch.git FeatherWatch && cd FeatherWatch
+python3 -m venv .venv          # Homebrew/python.org Python 3.10+
+source .venv/bin/activate
+pip install -r requirements.txt
+python app.py
+```
 
 **Windows (PowerShell)**
 ```powershell
@@ -80,113 +175,88 @@ py -3 -m venv .venv
 pip install -r requirements.txt
 python app.py
 ```
-> If PowerShell refuses to run the activate script, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` first.
+> If PowerShell refuses to run the activate script: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
-**macOS (zsh)**
-```zsh
-git clone https://github.com/Akpoikar/FeatherWatch.git FeatherWatch && cd FeatherWatch
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
-```
-
-## How to use
-
-1. Start the app with `python app.py`.
-2. Paste a link or type a channel name in the top bar and press Enter. The stream starts at the best quality; change it from the gear menu in the player.
-3. Click the heart on a channel to **follow** it. Followed channels appear in the sidebar and on the home screen, and their live status updates every few minutes.
-4. Click a channel name to open its **channel page** with past broadcasts and clips.
-5. Use the player buttons to **clip**, **record**, open **multiview**, or open the stream in VLC/mpv.
-6. Press `Ctrl/Cmd + K` for the command palette, or `?` to see all shortcuts.
-
-### Twitch API keys (optional)
-
-Browsing categories and faster live checks use the official Twitch API. Everything else works without it.
-
-1. Create an app at <https://dev.twitch.tv/console> (Client Type: Confidential).
-2. Copy `.env.example` to `.env` (next to `app.py`, or in `~/.featherwatch/`) and fill in `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`.
-
-`.env` is git-ignored, so your keys stay local.
+**Usage**: paste a link or type a channel name and press Enter. Click the heart to follow. `Ctrl/Cmd + K` opens the command palette, `?` lists shortcuts.
 
 ### Import your Twitch follows
 
-Copy the list from twitch.tv's "Following" page (or write one name per line) into a text file, then:
-
+Copy the list from twitch.tv's "Following" page (or one name per line) into a text file, then:
 ```zsh
 python tools/import_follows.py follows.txt
 ```
 
 ## Building a standalone app
 
-The build scripts create `.venv` if it doesn't exist, install `requirements-dev.txt`, and run PyInstaller. The finished app goes to `dist/`.
+Build on each OS (PyInstaller can't cross-compile). The scripts create `.venv` if needed, install `requirements-dev.txt` (adds PyInstaller) and build from `build/featherwatch.spec` (temp files in `.pyi-build/`).
 
-```zsh
-./build/build.sh            # macOS / Linux → dist/FeatherWatch.app (macOS)
-```
-```powershell
-.\build\build.ps1           # Windows → dist\FeatherWatch\FeatherWatch.exe
-```
+| OS | Command (from the project folder) | Output |
+|---|---|---|
+| macOS | `./build/build.sh` | `dist/FeatherWatch.app` + `dist/FeatherWatch-mac.zip` |
+| macOS (optional) | `./build/make_dmg.sh` | `dist/FeatherWatch.dmg` |
+| Windows | `powershell -ExecutionPolicy Bypass -File build\build.ps1` | `dist\FeatherWatch\FeatherWatch.exe` + `dist\FeatherWatch-win.zip` |
 
-PyInstaller's temporary files go to `.pyi-build/`, which is git-ignored.
+Move `FeatherWatch.app` to Applications, or on Windows keep the whole `FeatherWatch` folder together and make a shortcut to `FeatherWatch.exe`. The built app still uses ffmpeg, deno and VLC from your system if installed, and reads API keys from `~/.featherwatch/.env`.
+
+The builds are unsigned: on macOS, right-click the app → **Open** the first time (Gatekeeper); on Windows, SmartScreen → **More info → Run anyway**.
 
 ## Where your data lives
 
-History, follows, VOD positions and settings are all stored in one JSON file:
+| What | Where |
+|---|---|
+| Follows, history, VOD positions, settings | `~/.featherwatch/data.json` |
+| Watch-time stats | `~/.featherwatch/stats.json` |
+| Emote/avatar/clip-editor cache | `~/.featherwatch/cache/` |
+| Window size/position | `~/.featherwatch/window.json` |
+| Optional API keys | `~/.featherwatch/.env` |
+| Recordings & clips (changeable in Settings) | `~/Movies/FeatherWatch` (macOS), `~/Videos/FeatherWatch` (Windows/Linux) |
 
-```
-~/.featherwatch/data.json        (Windows: %USERPROFILE%\.featherwatch\data.json)
-```
-
-To reset the app, delete that file.
+On Windows `~` is `%USERPROFILE%`. An old `~/.lightweight` folder (FeatherWatch was formerly called Lightweight) is migrated automatically. To reset, delete `~/.featherwatch`.
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---|---|
-| **Ads on Twitch** | Ad segments are removed using streamlink's own Twitch ad detection (same as streamlink → VLC). During an ad break you may see a short pause instead of the ad. |
-| **"No playable streams" / nothing plays** | The channel is probably offline. Follow it and the sidebar will show when it goes live. |
-| **macOS: "app can't be opened" (Gatekeeper)** | The build isn't signed. Right-click the app → **Open**, or run `xattr -dr com.apple.quarantine dist/FeatherWatch.app`. |
-| **macOS: `NotOpenSSLWarning` / LibreSSL warning** | Apple's system Python is linked against LibreSSL. Install Python from [python.org](https://www.python.org/downloads/) or Homebrew (`brew install python`) and create the venv again. |
+| **Short pause on Twitch** | Ad segments are dropped (same detection as streamlink), so an ad break shows as a brief pause instead of the ad. |
+| **YouTube fails / formats missing** | yt-dlp is out of date: **Settings → Updates** → update, then restart. Install deno and make sure `yt-dlp-ejs` is installed (`pip install -r requirements.txt`). |
+| **"No playable streams" / nothing plays** | The channel is probably offline. Follow it and the sidebar shows when it goes live. |
+| **Clip export / trim disabled** | ffmpeg is not installed or not on PATH (see Requirements). |
 | **Windows: blank window** | Install or repair the WebView2 runtime. |
-| **"Open in VLC" does nothing** | Install VLC, or set `player_path` in settings to your VLC/mpv executable. |
+| **macOS: "app can't be opened"** | Unsigned build: right-click → **Open**, or `xattr -dr com.apple.quarantine dist/FeatherWatch.app`. |
+| **macOS: LibreSSL / `NotOpenSSLWarning`, yt-dlp errors** | You're on Apple's Python 3.9. Recreate the venv with Homebrew/python.org Python. |
+| **"Open in VLC" does nothing** | Install VLC, or set the player path in Settings. |
 
 ## Project structure
 
 ```
 FeatherWatch/
-├── app.py               # entry point: pywebview window + JS API
+├── app.py                # entry point: pywebview window + JS API
 ├── backend/
-│   ├── resolver.py      # streamlink / yt-dlp URL resolution
-│   ├── proxy.py         # local HLS proxy (127.0.0.1, rewrites m3u8)
-│   ├── store.py         # ~/.featherwatch/data.json
-│   ├── recorder.py      # record streams to disk
-│   ├── live.py          # background live-status checker
-│   ├── browse.py        # Twitch Helix API (browse, live status)
-│   └── features/        # plug-ins: chat, multiview, clip, channel
+│   ├── resolver.py       # streamlink / yt-dlp URL resolution
+│   ├── proxy.py          # local HLS proxy (127.0.0.1), Twitch ad filtering
+│   ├── store.py          # ~/.featherwatch/data.json
+│   ├── recorder.py       # record streams to disk
+│   ├── live.py           # background live-status checker
+│   ├── browse.py         # Twitch Helix API + .env loading
+│   ├── profile.py        # channel profiles
+│   └── features/         # chat, clip, clipedit, channel, browseplus, stats, theme, ...
 ├── ui/
 │   ├── index.html, style.css, app.js
-│   ├── features/        # UI for each plug-in
-│   └── vendor/hls.min.js
-├── tools/
-│   └── import_follows.py
-├── build/
-│   ├── build.sh         # macOS / Linux build
-│   └── build.ps1        # Windows build
+│   ├── features/         # UI per feature (chat, multiview, clip, stats, theme, updater, ...)
+│   └── vendor/           # hls.js
+├── tools/import_follows.py
+├── updater_boot.py       # loads updated streamlink/yt-dlp in the standalone app
+├── build/                # featherwatch.spec, build.sh, build.ps1, make_dmg.sh, icons/
+├── docs/screenshots/
 ├── requirements.txt
-└── requirements-dev.txt # + PyInstaller
+└── requirements-dev.txt  # + PyInstaller
 ```
 
-## Ideas / roadmap
+## Roadmap
 
-Features that streamlink and yt-dlp would make possible:
-
-- **Go-live notifications** for followed channels (native OS notifications)
-- **Audio-only mode** for podcasts and music streams, using little bandwidth
-- **Schedule recording**: start recording automatically when a follow goes live
-- **YouTube / Twitch search** via yt-dlp
-- **Subtitles / captions** for YouTube VODs
-- **Chapters and VOD timestamps** shown on the seek bar
-- **Low-latency tuning** and buffer controls per site
-- **Download VODs** in the background with yt-dlp
-- **Tray icon / mini player** that stays on top
+- Go-live notifications for followed channels
+- Auto-record when a channel goes live
+- Mini player / always-on-top window
+- Tray icon
+- Audio-only mode
+- Pinned / grouped follows

@@ -287,9 +287,10 @@
         liveBackBufferLength: 60 * 60 * 2, backBufferLength: 90,
         liveSyncDurationCount: S.settings.low_latency ? 2 : 3,
         maxLiveSyncPlaybackRate: S.settings.low_latency ? 1.15 : 1,
-        enableWorker: true
+        enableWorker: true,
+        ...((LW.hlsConfigHooks || []).reduce((o, f) => { try { return Object.assign(o, f(S) || {}); } catch (e) { return o; } }, {}))
       });
-      S.hls = hls;
+      S.hls = hls; LW.emit('hlsCreated', hls);
       hls.on(Hls.Events.MANIFEST_PARSED, onReady);
       hls.on(Hls.Events.ERROR, (_, d) => {
         if (!d.fatal) return;

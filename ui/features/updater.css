@@ -1,0 +1,19 @@
+/* updater feature */
+.upd-tabs{display:flex;gap:4px;margin:-4px 0 16px;background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:3px}
+.upd-tabs button{flex:1;height:30px;border-radius:7px;font-weight:600;color:var(--fg2)}
+.upd-tabs button.on{background:var(--bg2);color:var(--fg)}
+.upd-pane{display:flex;flex-direction:column;gap:10px}
+.upd-pane[hidden]{display:none}
+.upd-table{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.upd-row{display:grid;grid-template-columns:1.1fr 1fr 1fr 1.4fr;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid var(--line);font-size:13px}
+.upd-row:first-child{border-top:0}
+.upd-head{background:var(--bg3);color:var(--fg3);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.upd-name{font-weight:600}
+.upd-ver,.upd-latest{font-variant-numeric:tabular-nums;color:var(--fg2)}
+.upd-badge{justify-self:start;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg4);color:var(--fg2)}
+.upd-new{background:var(--a1);color:#fff}
+.upd-ok{color:var(--ok)}
+.upd-pend{background:var(--ok);color:#fff}
+.upd-dim{color:var(--fg3);font-size:12px;margin:0}
+.upd-err{color:var(--live);font-size:12px;margin:0;word-break:break-word}
+.upd-foot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}

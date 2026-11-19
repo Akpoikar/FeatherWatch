@@ -322,7 +322,7 @@
     }
   }
 
-  const chat = { connect, connectChannel, disconnect, popout, get channel() { return C.channel; } };
+  const chat = { connect, connectChannel, disconnect, popout, get channel() { return C.channel; }, get emotes() { return C.emotes; } };
   if (STANDALONE) {
     window.LWChat = chat;
     const start = () => {

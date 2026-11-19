@@ -6,7 +6,8 @@ import time
 from urllib.parse import urlparse, parse_qs
 
 import streamlink
-from streamlink.stream import HLSStream, HTTPStream
+from streamlink.stream.hls import HLSStream
+from streamlink.stream.http import HTTPStream
 
 try:
     import yt_dlp  # optional
@@ -108,6 +109,8 @@ def _quality_key(name):
     m = re.match(r"^(\d+)p(\d+)?", name)
     if m:
         return (int(m.group(1)), int(m.group(2) or 30))
+    if name == "auto":
+        return (100000, 0)  # adaptive master playlist: always the best choice
     if name == "audio_only":
         return (-1, 0)
     return (0, 0)
@@ -155,6 +158,8 @@ class Resolver:
             raise ResolveError("yt-dlp not installed")
         opts = {"quiet": True, "no_warnings": True, "skip_download": True, "noplaylist": True,
                 "logger": _QuietLogger()}
+        if getattr(self, "ytdlp_proxy", None):  # set by features/netproxy
+            opts["proxy"] = self.ytdlp_proxy
         with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=False)
         if info.get("_type") == "playlist" and info.get("entries"):
@@ -183,6 +188,14 @@ class Resolver:
             if prev is None or score > prev["score"]:
                 out[name] = {"url": f["url"], "kind": kind, "score": score,
                              "headers": dict(f.get("http_headers") or {})}
+        # YouTube now serves video and audio as separate HLS renditions; the master manifest
+        # combines them and hls.js switches quality itself.
+        master = next((f.get("manifest_url") for f in info.get("formats") or []
+                       if (f.get("protocol") or "").startswith("m3u8") and f.get("manifest_url")), None)
+        if master:
+            hdrs = next((dict(f.get("http_headers") or {}) for f in info.get("formats") or []
+                         if f.get("manifest_url") == master), {})
+            out["auto"] = {"url": master, "kind": "hls", "score": (2, 0), "headers": hdrs}
         if not out and info.get("url"):
             kind = "hls" if (info.get("protocol") or "").startswith("m3u8") else "mp4"
             out["source"] = {"url": info["url"], "kind": kind, "score": (0, 0),

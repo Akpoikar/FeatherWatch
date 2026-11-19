@@ -3,6 +3,7 @@
   'use strict';
   const MAX = 4, LS_KEY = 'lw.mv.set', DRAG_MIME = 'application/x-lw-item';
   const PREF_Q = ['720p60', '720p', '480p', '540p', '360p', 'best', 'source'];
+  const TILE_MIME = 'application/x-featherwatch-tile';
   const ICON = {
     grid: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>',
     star: '<svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>',
@@ -49,13 +50,22 @@
           <button data-l="3" title="One big + two">1+2</button>
           <button data-l="4" title="2×2 grid">2×2</button>
         </div>
-        <span class="mv-hint">1–4 audio · f fullscreen · drag channels here</span>
+        <span class="mv-hint">1–4 audio · f fullscreen · drag tiles to swap</span>
+        <div class="mv-addwrap">
+          <button class="btn mv-addbtn" title="Add a stream">${ICON.plus}<span>Add stream</span></button>
+          <div class="mv-pop" hidden></div>
+        </div>
         <button class="btn ghost mv-clear" title="Remove all streams">Clear</button>
       </div>
       <div class="mv-grid"></div>`;
     vp.parentNode.insertBefore(section, vp.nextSibling);
     gridEl = section.querySelector('.mv-grid');
     section.querySelectorAll('.mv-layouts button').forEach(b => { b.onclick = () => { layout = b.dataset.l; applyLayout(); save(); }; });
+    const addBtn = section.querySelector('.mv-addbtn'), pop = section.querySelector('.mv-pop');
+    addBtn.onclick = e => { e.stopPropagation(); togglePop(); };
+    pop.addEventListener('click', e => e.stopPropagation());
+    document.addEventListener('click', () => togglePop(false));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) { togglePop(false); e.stopPropagation(); } }, true);
     section.querySelector('.mv-clear').onclick = () => { tiles.slice().forEach(t => removeTile(t, true)); render(); save(); };
 
     // drag & drop of sidebar channels onto grid
@@ -64,6 +74,7 @@
     section.addEventListener('drop', e => {
       section.classList.remove('mv-dragover');
       const dt = e.dataTransfer; if (!dt) return;
+      if (Array.from(dt.types || []).includes(TILE_MIME)) return;  // tile swap, handled by the tile
       const id = dt.getData(DRAG_MIME);
       const t = id || (dt.getData('text/uri-list') || dt.getData('text/plain') || '').split(/\s/).find(x => x && !x.startsWith('#'));
       if (!t) return;
@@ -210,6 +221,20 @@
     audioIdx = tiles.indexOf(audioTile);
     render(); save();
   }
+  function swapTiles(a, b) {
+    if (a === b || !tiles[a] || !tiles[b]) return;
+    const audioTile = tiles[audioIdx];
+    [tiles[a], tiles[b]] = [tiles[b], tiles[a]];
+    audioIdx = Math.max(0, tiles.indexOf(audioTile));
+    render(); save();
+  }
+  function togglePop(force) {
+    const pop = section && section.querySelector('.mv-pop'); if (!pop) return;
+    const show = force != null ? force : pop.hidden;
+    if (show && tiles.length >= MAX) return;
+    pop.hidden = !show;
+    if (show) { pop.innerHTML = ''; pop.appendChild(addTileEl(true)); const i = pop.querySelector('input'); if (i) i.focus(); }
+  }
   function setAudio(i) { if (i < 0 || i >= tiles.length) return; audioIdx = i; applyAudio(); }
   function applyAudio() {
     tiles.forEach((t, i) => {
@@ -255,6 +280,28 @@
       else if (a === 'remove') removeTile(t);
       else if (a === 'retry') startTile(t);
     };
+    // drag a tile onto another to swap them
+    d.draggable = true;
+    d.addEventListener('dragstart', e => {
+      if (e.target.closest && e.target.closest('select,input')) return;
+      e.dataTransfer.setData(TILE_MIME, String(tiles.indexOf(t)));
+      e.dataTransfer.effectAllowed = 'move';
+      d.classList.add('mv-dragging');
+    });
+    d.addEventListener('dragend', () => { d.classList.remove('mv-dragging'); gridEl.querySelectorAll('.mv-swap').forEach(x => x.classList.remove('mv-swap')); });
+    d.addEventListener('dragover', e => {
+      if (!Array.from(e.dataTransfer.types || []).includes(TILE_MIME)) return;
+      e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = 'move';
+      if (!d.classList.contains('mv-dragging')) d.classList.add('mv-swap');
+    });
+    d.addEventListener('dragleave', e => { if (!d.contains(e.relatedTarget)) d.classList.remove('mv-swap'); });
+    d.addEventListener('drop', e => {
+      if (!Array.from(e.dataTransfer.types || []).includes(TILE_MIME)) return;
+      e.preventDefault(); e.stopPropagation();
+      d.classList.remove('mv-swap');
+      const from = +e.dataTransfer.getData(TILE_MIME), to = tiles.indexOf(t);
+      swapTiles(from, to);
+    });
     d.ondblclick = e => { if (!e.target.closest('.mv-acts')) fullscreen(t); };
     d.querySelector('.mv-q').onchange = e => { t.quality = e.target.value; save(); if (isActive()) startTile(t); };
     return d;
@@ -279,8 +326,8 @@
     else if (t.state === 'error') st.innerHTML = `<div class="mv-msg"><b>Couldn't play</b><span>${LW.esc(t.err)}</span><button class="btn ghost" data-a="retry">Retry</button></div>`;
     else st.innerHTML = '';
   }
-  function addTileEl() {
-    const d = LW.el('div', 'mv-tile mv-add');
+  function addTileEl(inPop) {
+    const d = LW.el('div', inPop ? 'mv-add mv-add-pop' : 'mv-tile mv-add');
     const live = (LW.S.follows || []).filter(f => f.is_live && !tiles.some(t => t.id === f.id)).sort((a, b) => (b.viewers || 0) - (a.viewers || 0)).slice(0, 8);
     d.innerHTML = `<form class="mv-form" autocomplete="off"><input type="text" spellcheck="false" placeholder="Channel name or URL"><button class="btn" type="submit">${ICON.plus}<span>Add</span></button></form>
       <div class="mv-picks-h">${live.length ? 'Live now' : (tiles.length ? '' : 'Add up to 4 streams — or drag channels from the sidebar')}</div>
@@ -292,10 +339,10 @@
       const av = LW.el('span', 'mv-av', f.avatar ? '' : LW.esc(LW.initial(f)));
       av.style.background = f.avatar ? `center/cover url("${f.avatar}")` : LW.avBg(f.author || f.id);
       b.appendChild(av); b.appendChild(LW.el('span', 'mv-pick-n', LW.esc(nameOf(f))));
-      b.onclick = () => add(f);
+      b.onclick = () => { togglePop(false); add(f); };
       picks.appendChild(b);
     });
-    d.querySelector('form').onsubmit = e => { e.preventDefault(); const i = d.querySelector('input'); const v = i.value.trim(); if (v) { i.value = ''; add(v); } };
+    d.querySelector('form').onsubmit = e => { e.preventDefault(); const i = d.querySelector('input'); const v = i.value.trim(); if (v) { i.value = ''; togglePop(false); add(v); } };
     return d;
   }
   function render() {
@@ -304,13 +351,16 @@
     // reorder in place (moving <video> keeps hls attached)
     const old = gridEl.querySelector('.mv-add'); if (old) old.remove();
     tiles.forEach(t => gridEl.appendChild(t.el));
-    if (tiles.length < MAX) gridEl.appendChild(addTileEl());
+    if (!tiles.length) gridEl.appendChild(addTileEl());  // empty grid: big add panel; otherwise use the header button
+    const ab = section.querySelector('.mv-addbtn');
+    if (ab) { ab.hidden = !tiles.length || tiles.length >= MAX; }
+    if (tiles.length >= MAX || !tiles.length) togglePop(false);
     section.querySelector('.mv-count').textContent = tiles.length ? tiles.length + '/' + MAX : '';
     applyLayout(); applyAudio();
   }
   function applyLayout() {
     if (!gridEl) return;
-    const n = tiles.length + (tiles.length < MAX ? 1 : 0);
+    const n = Math.max(1, tiles.length);
     let l = layout === 'auto' ? String(Math.min(4, Math.max(1, n))) : layout;
     if (+l < n) l = String(Math.min(4, n));    // never hide tiles
     gridEl.dataset.layout = l;

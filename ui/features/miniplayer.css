@@ -13,3 +13,8 @@ body.mini-mode #player:hover .mini_bar { opacity: 1; }
 .mini_btn:hover { background: rgba(255,255,255,.15); }
 .mini_bar input[type=range] { width: 80px; }
 .mini_sp { flex: 1; }
+
+/* mini mode: only the stream. #player is moved to <body> by miniplayer.js; hide everything else. */
+body.mini-mode { zoom: 1 !important; }
+body.mini-mode > *:not(#player):not(script):not(style) { display: none !important; }
+body.mini-mode #player { max-height: none !important; aspect-ratio: auto !important; }

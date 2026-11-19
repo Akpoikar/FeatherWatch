@@ -19,12 +19,28 @@
     bar.querySelector('#mini_vol').value = v.muted ? 0 : v.volume;
   }
 
+  // Move #player to <body> while mini: position:fixed is otherwise relative to ancestors that
+  // have zoom/transform (font scale, view animations), so the rest of the app showed through.
+  let home = null;
+  function detachPlayer() {
+    const p = document.getElementById('player');
+    if (!p || p.parentNode === document.body) return;
+    home = { parent: p.parentNode, next: p.nextSibling };
+    document.body.appendChild(p);
+  }
+  function restorePlayer() {
+    const p = document.getElementById('player');
+    if (p && home && home.parent) home.parent.insertBefore(p, home.next && home.next.parentNode === home.parent ? home.next : null);
+    home = null;
+  }
+
   async function enter() {
     if (mini || busy) return;
     if (!document.getElementById('viewPlayer').classList.contains('active')) { LW.toast('Open a stream first', 'warn'); return; }
     busy = true;
     try {
       if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch (_) {} }
+      detachPlayer();
       document.body.classList.add('mini-mode');
       mini = true; syncUi();
       if (window.pywebview) {
@@ -40,6 +56,7 @@
     try {
       if (window.pywebview) { try { await LW.call('mini_exit'); } catch (_) {} }
       document.body.classList.remove('mini-mode');
+      restorePlayer();
       mini = false;
     } finally { busy = false; }
   }

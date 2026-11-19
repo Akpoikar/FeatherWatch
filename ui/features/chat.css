@@ -1,1 +1,29 @@
 /* chat feature – see CONTRACT.md 'Features' */
+.chat.lwc{position:relative}
+.lwc .chat-body{font-size:var(--lwc-fs,13px);overscroll-behavior:contain}
+.lwc .msg{font-size:inherit;animation:none;content-visibility:auto;contain-intrinsic-size:auto 22px}
+.lwc .msg.lwc-in{animation:lwcIn .18s var(--ease,ease-out) both}
+@keyframes lwcIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lwc-emote{height:1.9em;width:auto;max-width:6em;vertical-align:middle;margin:-.35em .05em;object-fit:contain}
+.lwc-badge{height:1.15em;width:1.15em;vertical-align:-.2em;margin-right:3px;border-radius:3px}
+.lwc-tbadge{display:inline-block;font-size:.68em;font-weight:800;color:#fff;padding:1px 4px;border-radius:3px;margin-right:4px;vertical-align:.12em;letter-spacing:.02em}
+.lwc-time{display:none;color:var(--fg3);font-size:.85em;margin-right:6px;font-variant-numeric:tabular-nums}
+.lwc-ts .lwc-time{display:inline}
+.lwc-at{font-weight:700;background:var(--bg4);border-radius:4px;padding:0 3px}
+.lwc .msg a{color:var(--a1);text-decoration:underline;word-break:break-all}
+.lwc .msg.lwc-hl{background:rgba(236,72,153,.14);background:color-mix(in srgb,var(--a2) 16%,transparent);box-shadow:inset 3px 0 0 var(--a2);border-radius:0 6px 6px 0}
+.lwc .msg.lwc-deleted .lwc-text{opacity:.4;text-decoration:line-through}
+.lwc .msg.lwc-action .lwc-text{font-style:italic}
+.lwc-hbtn.on{color:var(--a1)}
+.lwc-panel{position:absolute;top:46px;left:8px;right:8px;z-index:5;background:var(--bg3);border:1px solid var(--line);border-radius:var(--r,10px);box-shadow:var(--shadow);padding:12px;display:flex;flex-direction:column;gap:9px;font-size:12px;max-height:calc(100% - 60px);overflow:auto;animation:lwcIn .16s var(--ease,ease-out) both}
+.lwc-panel[hidden]{display:none}
+.lwc-l{display:flex;flex-direction:column;gap:4px;color:var(--fg2);font-weight:600}
+.lwc-l small{font-weight:400;color:var(--fg3)}
+.lwc-c{display:flex;align-items:center;gap:7px;color:var(--fg);cursor:pointer}
+.lwc-panel textarea{resize:vertical;background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:12px/1.4 inherit;color:var(--fg)}
+.lwc-panel input[type=range]{accent-color:var(--a1)}
+.lwc-panel input[type=checkbox]{accent-color:var(--a1)}
+.lwc-more{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);z-index:4;background:var(--grad);color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:999px;box-shadow:var(--shadow);animation:lwcIn .18s var(--ease,ease-out) both}
+.lwc-standalone .lwc-more{bottom:14px}
+.lwc-more[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.lwc .msg.lwc-in,.lwc-panel,.lwc-more{animation:none}}

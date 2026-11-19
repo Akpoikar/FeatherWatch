@@ -1,1 +1,88 @@
 /* channel feature – see CONTRACT.md 'Features' */
+.ch-link{cursor:pointer}
+.side-av.ch-link{transition:transform .15s var(--ease),box-shadow .15s}
+.side-av.ch-link:hover{transform:scale(1.1);box-shadow:0 0 0 2px var(--a1)}
+#infoAuthor.ch-link:hover{color:var(--a2);text-decoration:underline}
+#infoAvatar.ch-link:hover{box-shadow:0 0 0 2px var(--a1)}
+.card .card-av,.card .card-sub{cursor:pointer}
+.card .card-sub:hover{color:var(--a2)}
+
+/* page */
+.ch-view{padding:0}
+.ch-view.ch-in .ch-head,.ch-view.ch-in .ch-tabs{animation:chUp .45s var(--ease) both}
+.ch-view.ch-in .ch-tabs{animation-delay:.06s}
+.ch-banner{position:relative;height:200px;overflow:hidden;background:var(--grad)}
+.ch-banner.skel{border-radius:0}
+.ch-blur{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(40px) saturate(1.4);transform:scale(1.2);opacity:.85}
+.ch-fade{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,var(--bg))}
+.ch-head{display:flex;align-items:flex-end;gap:18px;padding:0 28px;margin-top:-56px;position:relative;flex-wrap:wrap}
+.ch-av{position:relative;width:112px;height:112px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:44px;font-weight:800;color:#fff;border:5px solid var(--bg);box-shadow:var(--shadow)}
+.ch-av.live{box-shadow:0 0 0 3px var(--live),var(--shadow)}
+.ch-livetag{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:var(--live);color:#fff;font-size:11px;font-weight:800;padding:2px 7px;border-radius:5px;letter-spacing:.05em}
+.ch-hmeta{flex:1;min-width:200px;padding-bottom:8px}
+.ch-name{margin:0 0 4px;font-size:28px;letter-spacing:-.02em}
+.ch-sub{color:var(--fg2);font-size:14px}
+.ch-sub .muted,.ch-view .muted{color:var(--fg3)}
+.ch-actions{display:flex;gap:8px;padding-bottom:10px}
+.ch-actions svg,.ch-live svg{width:15px;height:15px;fill:currentColor}
+.ch-actions [data-act=follow] svg{fill:none;stroke:currentColor;stroke-width:2}
+.ch-actions .btn.on svg{fill:currentColor}
+.ch-tabs{position:relative;display:flex;gap:4px;padding:18px 28px 0;border-bottom:1px solid var(--line)}
+.ch-tab{padding:10px 14px;font-weight:600;color:var(--fg2);transition:color var(--t)}
+.ch-tab:hover,.ch-tab.on{color:var(--fg)}
+.ch-ink{position:absolute;left:0;bottom:-1px;height:3px;border-radius:3px;background:var(--grad);transition:transform .3s var(--ease),width .3s var(--ease)}
+.ch-body{padding:20px 28px 40px}
+.ch-fadein{animation:chUp .35s var(--ease) both}
+.ch-h{margin:24px 0 12px;font-size:16px}
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+.ch-grid .card{animation:chUp .35s var(--ease) both}
+.ch-vod .thumb{position:relative}
+.ch-vod .thumb .tag:not(.r){left:8px;right:auto;top:auto;bottom:8px;background:rgba(0,0,0,.7)}
+.ch-play{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity var(--t);background:rgba(0,0,0,.25)}
+.ch-play svg{width:42px;height:42px;fill:#fff;filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))}
+.ch-vod:hover .ch-play{opacity:1}
+.ch-resume{color:var(--a2)}
+.ch-more{display:flex;margin:22px auto 0}
+.ch-more-link{margin-top:14px}
+.ch-filter{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.ch-filter .chip.on{background:var(--grad);color:#fff;border-color:transparent}
+.ch-live{display:flex;gap:20px;cursor:pointer;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:18px;transition:transform .2s var(--ease),box-shadow .2s}
+.ch-live:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.ch-live-thumb{position:relative;width:min(440px,50%);aspect-ratio:16/9;border-radius:10px;background:var(--bg3) center/cover;flex:none;overflow:hidden}
+.ch-live-thumb .tag{position:absolute;left:8px;top:8px;background:var(--live);color:#fff;font-size:11px;font-weight:800;padding:2px 6px;border-radius:4px}
+.ch-live-play{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity var(--t);background:rgba(0,0,0,.25)}
+.ch-live-play svg{width:52px;height:52px}
+.ch-live:hover .ch-live-play{opacity:1}
+.ch-live-meta{display:flex;flex-direction:column;gap:6px;min-width:0;justify-content:center;align-items:flex-start}
+.ch-live-title{font-size:18px;font-weight:700}
+.ch-about{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.ch-about-h{font-weight:700;margin-bottom:8px}
+.ch-bio{color:var(--fg2);white-space:pre-wrap;line-height:1.5}
+.ch-bio a{color:var(--a2)}
+.ch-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ch-links .chip svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2}
+@media (max-width:700px){.ch-live{flex-direction:column}.ch-live-thumb{width:100%}.ch-head,.ch-tabs,.ch-body{padding-left:16px;padding-right:16px}}
+
+/* sidebar search */
+.ch-search{position:relative;display:flex;align-items:center;margin:2px 8px 6px;height:32px;background:var(--bg3);border:1px solid var(--line);border-radius:9px;transition:border-color var(--t),box-shadow var(--t)}
+.ch-search:focus-within{border-color:var(--a1);box-shadow:0 0 0 3px rgba(139,92,246,.2)}
+.ch-s-ic{display:grid;place-items:center;width:30px;color:var(--fg3);flex:none}
+.ch-s-ic svg,.ch-s-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2}
+.ch-search input{flex:1;min-width:0;background:none;border:0;outline:0;font-size:13px;padding:0}
+.ch-s-kbd{margin-right:7px;transition:opacity var(--t)}
+.ch-s-x{display:none;width:24px;height:24px;margin-right:4px;border-radius:6px;place-items:center;color:var(--fg3)}
+.ch-s-x:hover{background:var(--bg4);color:var(--fg)}
+.ch-search.has .ch-s-x{display:grid}
+.ch-search.has .ch-s-kbd,.ch-search:focus-within .ch-s-kbd{display:none}
+.app.side-collapsed .ch-search{width:36px;margin:2px auto 6px;cursor:pointer}
+.app.side-collapsed .ch-search input,.app.side-collapsed .ch-s-kbd,.app.side-collapsed .ch-s-x{display:none}
+.side-item.ch-hide,.side-empty.ch-hide{display:none}
+.ch-filtering .side-item:not(.ch-hide){animation:chIn .2s var(--ease) both}
+.ch-filtering .side-item.ch-first{box-shadow:inset 2px 0 0 var(--a1)}
+.ch-nores{padding:8px 14px;color:var(--fg3);font-size:12px;display:flex;flex-direction:column;gap:8px;animation:chIn .2s var(--ease) both}
+.ch-nores .btn{height:auto;min-height:30px;padding:6px 10px;font-size:12px;white-space:normal;text-align:left}
+.app.side-collapsed .ch-nores{display:none}
+
+@keyframes chUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes chIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ch-view *,.ch-search,.ch-nores,.side-item{animation:none!important;transition:none!important}}

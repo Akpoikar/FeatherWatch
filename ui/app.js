@@ -542,11 +542,13 @@
     if (atBottom) body.scrollTop = body.scrollHeight;
   }
   function disconnectChat() {
+    if (LW.chat) return LW.chat.disconnect(); // features/chat.js takes over
     if (S.chatWs) { S.chatWs.onclose = null; try { S.chatWs.close(); } catch (e) { /* ignore */ } S.chatWs = null; }
     clearTimeout(S.chatRetry);
   }
   function parseTags(raw) { const o = {}; raw.split(';').forEach(kv => { const i = kv.indexOf('='); o[kv.slice(0, i)] = kv.slice(i + 1).replace(/\\s/g, ' ').replace(/\\:/g, ';').replace(/\\\\/g, '\\'); }); return o; }
   async function connectChat(it) {
+    if (LW.chat) return LW.chat.connect(it); // features/chat.js takes over
     disconnectChat();
     $('#chatBody').innerHTML = ''; $('#chatStatus').textContent = '';
     const r = await call('chat_info', it.id);

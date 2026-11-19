@@ -1,4 +1,4 @@
-# Lightweight
+# Lightweight-Everything
 
 **A tiny desktop app for watching Twitch, YouTube, Kick, and anything else [streamlink](https://streamlink.github.io/) supports.**
 Runs on Windows and macOS (Linux works too).
@@ -9,17 +9,27 @@ Lightweight uses the webview your OS already has (WebView2 on Windows, WKWebView
 
 ## Features
 
-- **Sidebar**: watch history plus followed channels, with live/offline status that refreshes automatically
-- **Open any link**: paste or drag in a channel name, Twitch channel/VOD/clip, YouTube video/live/@channel, Kick, and more. A bare name is treated as a Twitch channel.
-- **Custom player** (hls.js through a local HLS proxy)
-  - DVR seek and a **Go live** button
-  - Quality and playback-speed selection
-  - Theatre mode and Picture-in-Picture
-- **Twitch chat**: read-only, shown next to the player
-- **Record to disk**: saves to `~/Videos/Lightweight` (`~/Movies/Lightweight` on macOS)
-- **Open in VLC / mpv**: hands the (ad-filtered) stream to an external player
+**Watching**
+- **Open any link**: paste (`Ctrl/Cmd+V` anywhere), type, or drag in a channel name, Twitch channel/VOD/clip, YouTube video/live/@channel, Kick, and more. A bare name is treated as a Twitch channel.
+- **Custom player** (hls.js through a local HLS proxy): DVR seek with a **Go live** button, quality and speed selection, theatre mode, fullscreen, Picture-in-Picture
+- **Twitch ad filtering**: ad segments are stripped in the proxy
 - **VOD resume**: continues from where you stopped
-- **Command palette** and keyboard shortcuts
+- **Multiview**: watch 2–4 streams in a grid, pick which one has audio
+- **Open in VLC / mpv / IINA**: hands the stream to an external player
+
+**Following & discovery**
+- **Sidebar**: followed channels (live first, with viewers and category) and recently watched, refreshed automatically
+- **Channel pages**: profile, past broadcasts, highlights, uploads and clips
+- **Browse Twitch**: top categories and live streams (needs Twitch API keys, see below)
+- **Import follows** from your Twitch "Following" page with `tools/import_follows.py`
+
+**Chat**
+- Read-only Twitch chat with 7TV / BTTV / FFZ emotes and badges
+- Keyword highlights, bot filter, and a pop-out chat window
+
+**Saving**
+- **Clip**: save the last 15/30/60/120 seconds of what you're watching
+- **Record to disk**: saves to `~/Videos/Lightweight` (`~/Movies/Lightweight` on macOS)
 
 ### Keyboard shortcuts
 
@@ -32,6 +42,9 @@ Lightweight uses the webview your OS already has (WebView2 on Windows, WKWebView
 | `M` | Mute |
 | `T` | Theatre mode |
 | `C` | Toggle chat |
+| `X` | Clip the last N seconds |
+| `/` | Search channels |
+| `1`–`4` | Multiview: switch audio to tile |
 | `?` | Show shortcuts |
 | `Ctrl/Cmd + K` | Command palette |
 | `Ctrl/Cmd + V` | Paste a link and play it |
@@ -51,7 +64,7 @@ Twitch (live, VODs, clips), YouTube (live and VOD, using yt-dlp as a fallback), 
 
 **Windows (PowerShell)**
 ```powershell
-git clone <repo-url> Lightweight; cd Lightweight
+git clone https://github.com/Akpoikar/Lightweight-Everything.git Lightweight; cd Lightweight
 py -3 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -61,11 +74,37 @@ python app.py
 
 **macOS (zsh)**
 ```zsh
-git clone <repo-url> Lightweight && cd Lightweight
+git clone https://github.com/Akpoikar/Lightweight-Everything.git Lightweight && cd Lightweight
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
+```
+
+## How to use
+
+1. Start the app with `python app.py`.
+2. Paste a link or type a channel name in the top bar and press Enter. The stream starts at the best quality; change it from the gear menu in the player.
+3. Click the heart on a channel to **follow** it. Followed channels appear in the sidebar and on the home screen, and their live status updates every few minutes.
+4. Click a channel name to open its **channel page** with past broadcasts and clips.
+5. Use the player buttons to **clip**, **record**, open **multiview**, or open the stream in VLC/mpv.
+6. Press `Ctrl/Cmd + K` for the command palette, or `?` to see all shortcuts.
+
+### Twitch API keys (optional)
+
+Browsing categories and faster live checks use the official Twitch API. Everything else works without it.
+
+1. Create an app at <https://dev.twitch.tv/console> (Client Type: Confidential).
+2. Copy `.env.example` to `.env` (next to `app.py`, or in `~/.lightweight/`) and fill in `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`.
+
+`.env` is git-ignored, so your keys stay local.
+
+### Import your Twitch follows
+
+Copy the list from twitch.tv's "Following" page (or write one name per line) into a text file, then:
+
+```zsh
+python tools/import_follows.py follows.txt
 ```
 
 ## Building a standalone app
@@ -112,10 +151,15 @@ Lightweight/
 │   ├── proxy.py         # local HLS proxy (127.0.0.1, rewrites m3u8)
 │   ├── store.py         # ~/.lightweight/data.json
 │   ├── recorder.py      # record streams to disk
-│   └── live.py          # background live-status checker
+│   ├── live.py          # background live-status checker
+│   ├── browse.py        # Twitch Helix API (browse, live status)
+│   └── features/        # plug-ins: chat, multiview, clip, channel
 ├── ui/
 │   ├── index.html, style.css, app.js
+│   ├── features/        # UI for each plug-in
 │   └── vendor/hls.min.js
+├── tools/
+│   └── import_follows.py
 ├── build/
 │   ├── build.sh         # macOS / Linux build
 │   └── build.ps1        # Windows build
@@ -127,15 +171,12 @@ Lightweight/
 
 Features that streamlink and yt-dlp would make possible:
 
-- **Multi-stream view**: watch 2–4 streams in a grid
-- **Clip export**: save the last N seconds of the DVR buffer to a file
 - **Go-live notifications** for followed channels (native OS notifications)
 - **Audio-only mode** for podcasts and music streams, using little bandwidth
 - **Schedule recording**: start recording automatically when a follow goes live
 - **YouTube / Twitch search** via yt-dlp
 - **Subtitles / captions** for YouTube VODs
 - **Chapters and VOD timestamps** shown on the seek bar
-- **Import follows** from a list or OPML
 - **Low-latency tuning** and buffer controls per site
 - **Download VODs** in the background with yt-dlp
 - **Tray icon / mini player** that stays on top

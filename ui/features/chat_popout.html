@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat · Lightweight</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="chat.css">
+<style>html,body{height:100%}body{display:flex}#chat{flex:1;width:auto;border:0}#chat .chat-body{min-width:0}</style>
+</head>
+<body class="lwc-standalone">
+<aside class="chat" id="chat">
+  <div class="chat-head"><span id="lwcTitle">Stream chat</span><span class="chat-status" id="chatStatus"></span></div>
+  <div class="chat-body" id="chatBody"></div>
+</aside>
+<script>window.LW_CHAT_STANDALONE = true;</script>
+<script src="chat.js"></script>
+</body>
+</html>

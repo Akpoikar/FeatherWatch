@@ -3,6 +3,8 @@
 **A tiny desktop app for watching Twitch, YouTube, Kick, and anything else [streamlink](https://streamlink.github.io/) supports.**
 Runs on Windows and macOS (Linux works too).
 
+**No ads:** Twitch ad breaks are cut out of the stream, so you never sit through a pre-roll or mid-roll.
+
 FeatherWatch uses the webview your OS already has (WebView2 on Windows, WKWebView on macOS) through [pywebview](https://pywebview.flowrl.com/). It doesn't bundle Electron or Chromium, so the app is a few MB and doesn't need hundreds of MB of RAM just to start.
 
 ## Screenshots
@@ -21,6 +23,7 @@ FeatherWatch uses the webview your OS already has (WebView2 on Windows, WKWebVie
 
 | Area | What you get |
 |---|---|
+| **No ads** | Twitch pre-roll and mid-roll ads are removed from the stream; an ad break is just a short pause |
 | **Watching** | Paste any link, custom player with rewind on live streams, Twitch ad skipping, resume VODs, multi-view (up to 4 streams), open in VLC/mpv |
 | **Following** | Sidebar of your channels with icons, live status and viewer counts, sidebar search, channel pages with past broadcasts and clips, Browse Twitch |
 | **Chat** | Twitch chat with 7TV / BTTV / FFZ emotes, badges, keyword highlights, bot filter, pop-out window |
@@ -39,7 +42,7 @@ Type a channel name (e.g. `zackrawrr`) or paste any link into the top bar and pr
 - **Quality and speed:** the sliders icon picks quality; speed (0.5×–2×) is available on VODs and videos.
 - **Theatre mode** (`T`), **fullscreen** (`F`), **Picture-in-Picture** (`P`, floats the video over other apps), **mute** (`M`).
 - **Resume:** VODs and videos remember where you stopped and continue from there (shown in *Continue watching* on Home).
-- **Twitch ad skipping:** FeatherWatch removes Twitch's ad segments using streamlink's own ad detection, the same way `streamlink` does for VLC. During an ad break you see a short pause instead of the ad.
+- **No Twitch ads:** FeatherWatch removes Twitch's ad segments using streamlink's own ad detection, the same way `streamlink` does for VLC. During an ad break you see a short pause instead of the ad.
 - **Open in VLC / mpv / IINA:** hands the stream to an external player (the button under the player). Set a custom player path in **Settings** if it isn't found.
 
 ### Multi-view (up to 4 streams)

@@ -39,7 +39,7 @@
     if (!document.getElementById('viewPlayer').classList.contains('active')) { LW.toast('Open a stream first', 'warn'); return; }
     busy = true;
     try {
-      if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch (_) {} }
+      if (LW.fsEl) LW.exitFs();
       detachPlayer();
       document.body.classList.add('mini-mode');
       mini = true; syncUi();

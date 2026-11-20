@@ -80,6 +80,7 @@
     };
   }
 
+  const LIVE_EXTRA_DELAY = 1; // seconds of added live latency (anti-stutter)
   let API = null;
   async function call(name, ...args) {
     try {
@@ -282,14 +283,23 @@
       video.play().catch(() => { video.muted = true; syncVol(); video.play().catch(() => {}); });
     };
     if (S.kind === 'hls' && window.Hls && Hls.isSupported()) {
-      const hls = new Hls({
+      const cfg = {
         lowLatencyMode: !!S.settings.low_latency,
         liveBackBufferLength: 60 * 60 * 2, backBufferLength: 90,
         liveSyncDurationCount: S.settings.low_latency ? 2 : 3,
         maxLiveSyncPlaybackRate: S.settings.low_latency ? 1.15 : 1,
         enableWorker: true,
         ...((LW.hlsConfigHooks || []).reduce((o, f) => { try { return Object.assign(o, f(S) || {}); } catch (e) { return o; } }, {}))
-      });
+      };
+      // Live: sit LIVE_EXTRA_DELAY seconds further behind the edge than the segment-count target,
+      // giving the buffer slack so playback doesn't stutter on late segments.
+      if (S.isLive) {
+        const SEG = 2; // Twitch segments are ~2s
+        cfg.liveSyncDuration = (cfg.liveSyncDurationCount || 3) * SEG + LIVE_EXTRA_DELAY;
+        cfg.liveMaxLatencyDuration = (cfg.liveMaxLatencyDurationCount || 10) * SEG + LIVE_EXTRA_DELAY;
+        delete cfg.liveSyncDurationCount; delete cfg.liveMaxLatencyDurationCount;
+      }
+      const hls = new Hls(cfg);
       S.hls = hls; LW.emit('hlsCreated', hls);
       hls.on(Hls.Events.MANIFEST_PARSED, onReady);
       hls.on(Hls.Events.ERROR, (_, d) => {
@@ -313,7 +323,7 @@
     saveProgress(true);
     S.loadToken++; teardownVideo(); disconnectChat(); clearTimeout(viewersT); setViewers(null); S.item = null;
     LW.emit('stopped');
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    exitFs();
     renderSidebar();
   }
   function showError(msg) {
@@ -470,15 +480,46 @@
   function goLive() { const [, b] = range(); if (b) video.currentTime = b; video.play().catch(() => {}); osd('Live'); }
   function syncVol() { player.classList.toggle('muted', video.muted || video.volume === 0); $('#cVol').value = video.muted ? 0 : video.volume; }
   function toggleMute() { video.muted = !video.muted; if (!video.muted && video.volume === 0) video.volume = .5; syncVol(); osd(video.muted ? 'Muted' : 'Volume ' + Math.round(video.volume * 100) + '%'); }
-  function toggleFull() { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else (player.requestFullscreen ? player.requestFullscreen() : (video.webkitEnterFullscreen && video.webkitEnterFullscreen())); }
+  // Fullscreen: CSS "fill the window" + native window fullscreen via the backend.
+  // (Element fullscreen inside pywebview is unreliable: missing on macOS, window-only elsewhere.)
+  let fsEl = null;
+  function enterFs(node) {
+    if (!node) return;
+    if (fsEl && fsEl !== node) fsEl.classList.remove('fs-el');
+    fsEl = node; node.classList.add('fs-el'); document.body.classList.add('fs-mode');
+    if (window.pywebview) call('set_fullscreen', true);
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+    window.dispatchEvent(new Event('resize'));
+  }
+  function exitFs() {
+    if (!fsEl) return;
+    fsEl.classList.remove('fs-el'); fsEl = null; document.body.classList.remove('fs-mode');
+    if (window.pywebview) call('set_fullscreen', false);
+    else if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    window.dispatchEvent(new Event('resize'));
+  }
+  function toggleFs(node) { if (fsEl) exitFs(); else enterFs(node); }
+  function toggleFull() { toggleFs(player); }
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && fsEl && !window.pywebview) exitFs(); });
   function toggleTheatre() { app.classList.toggle('theatre'); try { localStorage.setItem('lw.theatre', app.classList.contains('theatre') ? '1' : ''); } catch (e) { /* ignore */ } }
   async function togglePip() {
+    // Native PiP is missing/disabled in the pywebview WebView (notably macOS WKWebView),
+    // so fall back to the built-in always-on-top mini player window.
+    const mini = () => { if (LW.mini) { LW.mini.toggle(); return true; } toast('Picture-in-picture is not supported here', 'error'); return false; };
+    if (LW.mini && LW.mini.active()) { LW.mini.toggle(); return; }
     try {
-      if (document.pictureInPictureElement) await document.exitPictureInPicture();
-      else if (video.requestPictureInPicture) await video.requestPictureInPicture();
-      else if (video.webkitSetPresentationMode) video.webkitSetPresentationMode(video.webkitPresentationMode === 'picture-in-picture' ? 'inline' : 'picture-in-picture');
-      else toast('Picture-in-picture is not supported here', 'error');
-    } catch (e) { toast('PiP failed: ' + e.message, 'error'); }
+      if (document.pictureInPictureElement) { await document.exitPictureInPicture(); return; }
+      if (video.requestPictureInPicture && document.pictureInPictureEnabled !== false) { await video.requestPictureInPicture(); return; }
+      if (video.webkitSupportsPresentationMode && video.webkitSupportsPresentationMode('picture-in-picture')) {
+        const was = video.webkitPresentationMode;
+        video.webkitSetPresentationMode(was === 'picture-in-picture' ? 'inline' : 'picture-in-picture');
+        if (was !== 'picture-in-picture') {
+          await new Promise(r => setTimeout(r, 400));
+          if (video.webkitPresentationMode === 'picture-in-picture') return;
+        } else return;
+      }
+    } catch (e) { /* fall through to mini player */ }
+    mini();
   }
   function toggleChat() { app.classList.toggle('chat-hidden'); try { localStorage.setItem('lw.chat', app.classList.contains('chat-hidden') ? '0' : '1'); } catch (e) { /* ignore */ } }
 
@@ -671,7 +712,7 @@
   document.addEventListener('keydown', e => {
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); if ($('#palette').hidden) openPalette(); else closeModals(); return; }
-    if (e.key === 'Escape') { if (document.querySelector('.modal:not([hidden])')) { closeModals(); return; } closeMenus(); if (app.classList.contains('theatre') && !document.fullscreenElement) toggleTheatre(); return; }
+    if (e.key === 'Escape') { if (document.querySelector('.modal:not([hidden])')) { closeModals(); return; } closeMenus(); if (fsEl) { exitFs(); return; } if (app.classList.contains('theatre')) toggleTheatre(); return; }
     if (isTyping(e) || mod || e.altKey) return;
     if (e.key === '?') { openModal('helpModal'); return; }
     if (!$('#viewPlayer').classList.contains('active') || document.querySelector('.modal:not([hidden])')) return;
@@ -770,7 +811,7 @@
   const readyCbs = LW._ready || [];
   Object.assign(LW, {
     $, el, esc, fmtTime, call, toast, showView, openInput, renderSidebar, renderHome, setInfo, nameOf, initial, avBg,
-    openModal, closeModals, stopPlayback, loadData, browseOpen, browseState: B,
+    openModal, closeModals, stopPlayback, enterFs, exitFs, toggleFs, get fsEl() { return fsEl; }, loadData, browseOpen, browseState: B,
     get S() { return S; }, get video() { return video; }, get hls() { return S.hls; },
     hooks: { itemOpened: [], playing: [], stopped: [], event: [], sidebarRendered: [] },
     on(name, fn) { (LW.hooks[name] = LW.hooks[name] || []).push(fn); },

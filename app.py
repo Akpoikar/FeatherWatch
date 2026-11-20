@@ -99,6 +99,7 @@ def api_method(fn):
 class Api:
     def __init__(self):
         self._window = None
+        self._fs = False
         self._store = Store()
         self._resolver = Resolver()
         self._resolver.set_low_latency(self._store.settings().get("low_latency", True))
@@ -312,6 +313,20 @@ class Api:
         v = info["viewers"] if info else None
         self._store.update_item(item_id, viewers=v)
         return {"viewers": v, "started_at": info and info.get("started_at")}
+
+    @api_method
+    def set_fullscreen(self, on):
+        """Put the native window in/out of fullscreen (the web view's own
+        element-fullscreen is unreliable inside pywebview)."""
+        on = bool(on)
+        w = self._window
+        if w is None:
+            return {"fullscreen": False}
+        cur = bool(getattr(w, "fullscreen", self._fs))
+        if cur != on:
+            w.toggle_fullscreen()
+        self._fs = on
+        return {"fullscreen": on}
 
     def _shutdown(self):
         from backend import features

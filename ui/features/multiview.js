@@ -149,7 +149,7 @@
     render();
   }
   function onLeave() {
-    if (document.fullscreenElement && section.contains(document.fullscreenElement)) document.exitFullscreen().catch(() => {});
+    if (LW.fsEl && section.contains(LW.fsEl)) LW.exitFs();
     tiles.forEach(stopTile);
   }
 
@@ -244,8 +244,7 @@
   }
   function fullscreen(t) {
     if (!t || !t.el) return;
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    else (t.el.requestFullscreen ? t.el.requestFullscreen() : Promise.reject()).catch(() => {});
+    LW.toggleFs(t.el);
   }
 
   // ---------- render ----------
@@ -375,7 +374,7 @@
     if (document.querySelector('.modal:not([hidden])')) return;
     if (/^[1-4]$/.test(e.key)) { setAudio(+e.key - 1); const t = tiles[+e.key - 1]; if (t && t.el) t.el.focus({ preventScroll: true }); }
     else if (e.key.toLowerCase() === 'f') fullscreen(tiles[audioIdx]);
-    else if (e.key === 'Escape' && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else if (e.key === 'Escape' && LW.fsEl) LW.exitFs();
     else return;
     e.preventDefault(); e.stopPropagation();
   }, true);

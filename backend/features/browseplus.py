@@ -118,13 +118,14 @@ def bp_streams(api, game_id=None, cursor=None, language=None, first=40):
     return {"items": items, "cursor": (d.get("pagination") or {}).get("cursor")}
 
 
-def bp_search(api, query):
+def bp_search(api, query, only=None):
     b = _browser(api)
     q = (query or "").strip()
     if not q:
         return {"channels": [], "categories": []}
-    ch = b._get("/search/channels", {"query": q, "first": 20}).get("data", [])
-    cats = b._get("/search/categories", {"query": q, "first": 12}).get("data", [])
+    cats_only = only == "categories"
+    ch = [] if cats_only else b._get("/search/channels", {"query": q, "first": 20}).get("data", [])
+    cats = b._get("/search/categories", {"query": q, "first": 40 if cats_only else 12}).get("data", [])
     channels = []
     logins = [c.get("broadcaster_login") for c in ch if c.get("broadcaster_login")]
     live = {}

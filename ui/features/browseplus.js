@@ -94,14 +94,42 @@
     sort.onchange = () => { bp_state.sort = sort.value; bp_set('sort', sort.value); reload(); };
 
     const grid = LW.$('#browseGrid');
-    const syncFilters = () => { bar.querySelector('#bp_filters').hidden = grid.classList.contains('games'); };
+    const gamesMode = () => grid.classList.contains('games') && !(LW.browseState && LW.browseState.game);
+    let lastMode = null;
+    const syncFilters = () => {
+      const g = grid.classList.contains('games');
+      bar.querySelector('#bp_filters').hidden = g;
+      const gm = gamesMode();
+      q.placeholder = gm ? 'Search categories…' : 'Search channels and categories…';
+      if (lastMode !== null && gm !== lastMode) { q.value = ''; res.hidden = true; }
+      lastMode = gm;
+    };
     new MutationObserver(syncFilters).observe(grid, { attributes: true, attributeFilter: ['class'] });
     syncFilters();
 
     let timer = 0, seq = 0;
     const close = () => { res.hidden = true; };
+    // On the Top games tab, the search filters the category grid itself.
+    let catSearching = false;
+    async function runCats(text, my) {
+      const more = LW.$('#browseMore');
+      if (!text) { if (catSearching) { catSearching = false; LW.browseOpen('games'); } return; }
+      const lower = text.toLowerCase();
+      // instant local filter of already-loaded tiles
+      grid.querySelectorAll('.card').forEach(c => { c.hidden = !c.textContent.toLowerCase().includes(lower); });
+      if (text.length < 2) return;
+      let r = await LW.call('bp_search', text, 'categories');
+      if (!r.ok && MOCK) r = bp_mockSearch(text);
+      if (my !== seq || !gamesMode()) return;
+      if (!r.ok) { if (/not configured|credentials/i.test(r.error || '')) return; LW.toast(r.error || 'Search failed', 'error'); return; }
+      catSearching = true; more.hidden = true;
+      const cats = r.categories || [];
+      grid.innerHTML = cats.length ? '' : '<div class="empty">No categories match.</div>';
+      cats.forEach(g => grid.appendChild(LW.gameCard(g)));
+    }
     async function run() {
       const text = q.value.trim(); const my = ++seq;
+      if (gamesMode() && LW.gameCard) { close(); return runCats(text, my); }
       if (text.length < 2) { close(); return; }
       res.hidden = false;
       res.innerHTML = '<div class="bp-sk"></div><div class="bp-sk"></div><div class="bp-sk"></div>';
@@ -137,10 +165,10 @@
         res.appendChild(row);
       });
     }
-    q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 300); });
+    q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, gamesMode() ? 200 : 300); });
     q.addEventListener('focus', () => { if (res.childElementCount && q.value.trim().length >= 2) res.hidden = false; });
     q.addEventListener('keydown', e => {
-      if (e.key === 'Escape') { close(); q.blur(); }
+      if (e.key === 'Escape') { if (gamesMode() && q.value) { q.value = ''; run(); } close(); q.blur(); }
       else if (e.key === 'Enter') { clearTimeout(timer); const first = res.querySelector('.bp-row'); if (!res.hidden && first) first.click(); else run(); }
     });
     document.addEventListener('mousedown', e => { if (!bar.querySelector('.bp-search').contains(e.target)) close(); });

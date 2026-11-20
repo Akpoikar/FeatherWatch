@@ -885,7 +885,7 @@
   const readyCbs = LW._ready || [];
   Object.assign(LW, {
     $, el, esc, fmtTime, call, toast, showView, openInput, renderSidebar, renderHome, setInfo, nameOf, initial, avBg,
-    openModal, closeModals, stopPlayback, goBack, goForward, navChannel(login) { login = String(login).toLowerCase(); if ($('#viewChannel').classList.contains('active') && NAV.channel !== login) navPush(); NAV.channel = login; }, enterFs, exitFs, toggleFs, get fsEl() { return fsEl; }, loadData, browseOpen, browseState: B,
+    openModal, closeModals, stopPlayback, gameCard, goBack, goForward, navChannel(login) { login = String(login).toLowerCase(); if ($('#viewChannel').classList.contains('active') && NAV.channel !== login) navPush(); NAV.channel = login; }, enterFs, exitFs, toggleFs, get fsEl() { return fsEl; }, loadData, browseOpen, browseState: B,
     get S() { return S; }, get video() { return video; }, get hls() { return S.hls; },
     hooks: { itemOpened: [], playing: [], stopped: [], event: [], sidebarRendered: [] },
     on(name, fn) { (LW.hooks[name] = LW.hooks[name] || []).push(fn); },

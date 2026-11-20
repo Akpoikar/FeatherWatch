@@ -38,6 +38,7 @@
     async function openChannel(login, hint) {
       if (!login) return;
       login = String(login).toLowerCase();
+      if (LW.navChannel) LW.navChannel(login);
       const tok = ++C.token;
       if (LW.S.item) LW.stopPlayback();
       Object.assign(C, { login, info: null, tab: 'home', kind: 'archive', cursor: null, busy: false, count: 0 });

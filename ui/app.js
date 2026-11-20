@@ -108,6 +108,7 @@
 
   // ---------- views ----------
   function showView(name) {
+    if (!(document.getElementById('view' + name) || {}).classList?.contains('active')) navPush();
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view' + name));
     if (name === 'Home') { stopPlayback(); renderHome(); }
     if (name === 'Browse') stopPlayback();
@@ -244,6 +245,8 @@
   async function openInput(input, hint) {
     input = String(input || '').trim();
     if (!input) return;
+    if ($('#viewPlayer').classList.contains('active') && S.navInput !== input) navPush();
+    S.navInput = input;
     const token = ++S.loadToken;
     showView('Player');
     teardownVideo();
@@ -762,6 +765,7 @@
     more.hidden = !B.cursor || !items.length;
   }
   function browseOpen(mode, game) {
+    if ($('#viewBrowse').classList.contains('active') && (B.mode !== mode || (B.game && B.game.id) !== (game && game.id))) navPush();
     B.mode = mode; B.game = game || null;
     $('#browseGrid').classList.toggle('games', mode === 'games');
     $('#browseBack').hidden = !B.game;
@@ -806,12 +810,82 @@
     } catch (e) { /* ignore */ }
     syncVol();
   }
+
+  // ---------- back / forward navigation (keys, mouse buttons, trackpad swipe) ----------
+  const NAV = { back: [], fwd: [], restoring: false, channel: null };
+  function navSnap() {
+    const v = document.querySelector('.view.active'); if (!v) return null;
+    const view = v.id.replace(/^view/, '');
+    const snap = { view };
+    if (view === 'Player') { if (!S.navInput) return null; snap.input = S.navInput; }
+    if (view === 'Browse') { snap.mode = B.mode; snap.game = B.game; }
+    if (view === 'Channel') { if (!NAV.channel) return null; snap.login = NAV.channel; }
+    return snap;
+  }
+  const navSame = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  function navPush() {
+    if (NAV.restoring) return;
+    const s = navSnap(); if (!s) return;
+    if (!navSame(NAV.back[NAV.back.length - 1], s)) NAV.back.push(s);
+    if (NAV.back.length > 50) NAV.back.shift();
+    NAV.fwd.length = 0;
+  }
+  function navRestore(s) {
+    NAV.restoring = true;
+    try {
+      if (s.view === 'Player') { S.navInput = null; openInput(s.input); }
+      else if (s.view === 'Browse') { showView('Browse'); browseOpen(s.mode || 'games', s.game); }
+      else if (s.view === 'Channel' && LW.openChannel) LW.openChannel(s.login);
+      else if (s.view === 'Stats' && LW.stats && LW.stats.open) LW.stats.open();
+      else if (s.view === 'Multiview' && LW.multiview && LW.multiview.open) LW.multiview.open();
+      else showView(s.view === 'Stats' || s.view === 'Multiview' ? 'Home' : s.view);
+    } finally { NAV.restoring = false; }
+  }
+  function navGo(dir) {
+    const from = dir < 0 ? NAV.back : NAV.fwd, to = dir < 0 ? NAV.fwd : NAV.back;
+    if (LW.mini && LW.mini.active && LW.mini.active()) return;
+    if (!from.length) { osdNav(dir < 0 ? 'Nothing to go back to' : 'Nothing to go forward to'); return; }
+    const cur = navSnap(); if (cur) to.push(cur);
+    navRestore(from.pop());
+  }
+  const goBack = () => navGo(-1), goForward = () => navGo(1);
+  function osdNav(msg) { try { toast(msg); } catch (e) { /* ignore */ } }
+  // keyboard: Cmd/Ctrl+[ ], Cmd/Ctrl+Left/Right, Alt+Left/Right
+  document.addEventListener('keydown', e => {
+    if (isTyping(e)) return;
+    const mod = e.metaKey || e.ctrlKey;
+    let d = 0;
+    if (mod && e.key === '[') d = -1; else if (mod && e.key === ']') d = 1;
+    else if ((mod || e.altKey) && e.key === 'ArrowLeft') d = -1;
+    else if ((mod || e.altKey) && e.key === 'ArrowRight') d = 1;
+    if (!d) return;
+    e.preventDefault(); e.stopImmediatePropagation(); navGo(d);
+  }, true);
+  // mouse side buttons
+  window.addEventListener('mouseup', e => { if (e.button === 3) { e.preventDefault(); goBack(); } else if (e.button === 4) { e.preventDefault(); goForward(); } });
+  // trackpad: two-finger horizontal swipe (WebView has no native history gesture)
+  (function () {
+    let acc = 0, t = 0, locked = false;
+    const scrollsX = n => { for (; n && n !== document.body; n = n.parentElement) { if (n.scrollWidth > n.clientWidth + 2 && /(auto|scroll)/.test(getComputedStyle(n).overflowX)) return true; if (n.tagName === 'INPUT') return true; } return false; };
+    window.addEventListener('wheel', e => {
+      if (e.ctrlKey || Math.abs(e.deltaX) <= Math.abs(e.deltaY) * 1.5) { if (Math.abs(e.deltaY) > 4) acc = 0; return; }
+      if (scrollsX(e.target)) return;
+      const now = performance.now();
+      if (now - t > 250) { acc = 0; locked = false; }
+      t = now;
+      if (locked) return;
+      acc += e.deltaX;
+      if (acc < -160) { locked = true; acc = 0; goBack(); }
+      else if (acc > 160) { locked = true; acc = 0; goForward(); }
+    }, { passive: true });
+  })();
+
   // ---------- feature plug-in surface (ui/features/*.js use window.LW) ----------
   const LW = window.LW = window.LW || {};
   const readyCbs = LW._ready || [];
   Object.assign(LW, {
     $, el, esc, fmtTime, call, toast, showView, openInput, renderSidebar, renderHome, setInfo, nameOf, initial, avBg,
-    openModal, closeModals, stopPlayback, enterFs, exitFs, toggleFs, get fsEl() { return fsEl; }, loadData, browseOpen, browseState: B,
+    openModal, closeModals, stopPlayback, goBack, goForward, navChannel(login) { login = String(login).toLowerCase(); if ($('#viewChannel').classList.contains('active') && NAV.channel !== login) navPush(); NAV.channel = login; }, enterFs, exitFs, toggleFs, get fsEl() { return fsEl; }, loadData, browseOpen, browseState: B,
     get S() { return S; }, get video() { return video; }, get hls() { return S.hls; },
     hooks: { itemOpened: [], playing: [], stopped: [], event: [], sidebarRendered: [] },
     on(name, fn) { (LW.hooks[name] = LW.hooks[name] || []).push(fn); },

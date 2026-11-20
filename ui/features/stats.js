@@ -201,6 +201,7 @@
 
   async function open() {
     flush();
+    if (LW.S && LW.S.item) LW.stopPlayback();
     LW.showView('Stats');
     await load();
   }

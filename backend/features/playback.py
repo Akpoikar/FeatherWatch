@@ -1,7 +1,9 @@
-"""Playback tuning: quality cap / battery saver, persisted under settings["playback"]."""
+"""Playback tuning: quality cap / battery saver / rewind window, persisted under settings["playback"]."""
 
 QUALITY_CAPS = ("off", "720p", "480p", "lowest")
-DEFAULTS = {"quality_cap": "off", "battery_saver": False, "show_latency": True}
+# Seconds of already-watched video kept in memory so you can rewind. 0 = keep everything (uses lots of RAM on long streams).
+REWIND_WINDOWS = (30, 120, 300, 600, 1800, 3600, 0)
+DEFAULTS = {"quality_cap": "off", "battery_saver": False, "show_latency": True, "rewind_window": 1800}
 
 
 def _clean(d):
@@ -11,6 +13,12 @@ def _clean(d):
             continue
         if k == "quality_cap":
             v = v if v in QUALITY_CAPS else "off"
+        elif k == "rewind_window":
+            try:
+                v = int(v)
+            except (TypeError, ValueError):
+                v = DEFAULTS[k]
+            v = v if v in REWIND_WINDOWS else DEFAULTS[k]
         else:
             v = bool(v)
         p[k] = v

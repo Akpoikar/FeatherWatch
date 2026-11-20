@@ -4,19 +4,28 @@
   const PB = { cfg: { quality_cap: 'off', battery_saver: false, show_latency: true }, discharging: false, hls: null, timer: null };
   const CAP_H = { off: Infinity, '720p': 720, '480p': 480, lowest: 0 };
 
+  // ---- rewind window: how many seconds of watched video stay in memory ----
+  function pb_rewindSec() { const w = Number(PB.cfg.rewind_window); return w > 0 ? w : Infinity; }
+  function pb_applyRewind() {
+    const hls = PB.hls; if (!hls || !hls.config) return;
+    const w = pb_rewindSec();
+    hls.config.backBufferLength = w;
+    hls.config.liveBackBufferLength = w;
+  }
+
   // ---- hls.js config hook (read by app.js loadSource) ----
   (LW.hlsConfigHooks = LW.hlsConfigHooks || []).push(function pb_hlsConfig(S) {
-    if (!S.settings || !S.settings.low_latency || !S.isLive) return {};
-    return {
+    const w = pb_rewindSec();
+    const cfg = { backBufferLength: w, liveBackBufferLength: w };
+    if (!S.settings || !S.settings.low_latency || !S.isLive) return cfg;
+    return Object.assign(cfg, {
       lowLatencyMode: true,
       liveSyncDurationCount: 2,
       liveMaxLatencyDurationCount: 5,
       maxLiveSyncPlaybackRate: 1.1,
       maxBufferLength: 10,
-      maxMaxBufferLength: 20,
-      backBufferLength: 30,
-      liveBackBufferLength: 30
-    };
+      maxMaxBufferLength: 20
+    });
   });
 
   function pb_capHeight() {
@@ -72,22 +81,27 @@
       '<label>Data saver (quality cap)<select name="pb_quality_cap">' +
       '<option value="off">Off</option><option value="720p">Max 720p</option><option value="480p">Max 480p</option><option value="lowest">Lowest (audio-ish)</option></select></label>' +
       '<label class="row"><input name="pb_battery_saver" type="checkbox"> Battery saver (cap to 480p on battery)</label>' +
-      '<label class="row"><input name="pb_show_latency" type="checkbox"> Show live latency readout</label>';
+      '<label class="row"><input name="pb_show_latency" type="checkbox"> Show live latency readout</label>' +
+      '<label>Rewind window (memory use)<select name="pb_rewind_window">' +
+      '<option value="30">30 seconds</option><option value="120">2 minutes</option><option value="300">5 minutes</option>' +
+      '<option value="600">10 minutes</option><option value="1800">30 minutes</option><option value="3600">1 hour</option>' +
+      '<option value="0">Unlimited (keeps whole stream in RAM)</option></select></label>';
     const actions = f.querySelector('.modal-actions');
     f.insertBefore(wrap, actions);
     // populate whenever the modal opens
     const modal = document.getElementById('settingsModal');
     if (modal) new MutationObserver(() => { if (!modal.hidden) pb_fill(); }).observe(modal, { attributes: true, attributeFilter: ['hidden'] });
     f.addEventListener('submit', () => {
-      pb_save({ quality_cap: f.pb_quality_cap.value, battery_saver: f.pb_battery_saver.checked, show_latency: f.pb_show_latency.checked });
+      pb_save({ quality_cap: f.pb_quality_cap.value, battery_saver: f.pb_battery_saver.checked, show_latency: f.pb_show_latency.checked, rewind_window: parseInt(f.pb_rewind_window.value, 10) });
     });
   }
   function pb_fill() {
     const f = document.getElementById('settingsForm'); if (!f || !f.pb_quality_cap) return;
     f.pb_quality_cap.value = PB.cfg.quality_cap; f.pb_battery_saver.checked = !!PB.cfg.battery_saver; f.pb_show_latency.checked = !!PB.cfg.show_latency;
+    f.pb_rewind_window.value = String(PB.cfg.rewind_window);
   }
   async function pb_save(d) {
-    Object.assign(PB.cfg, d); pb_applyCap(); pb_tick();
+    Object.assign(PB.cfg, d); pb_applyCap(); pb_applyRewind(); pb_tick();
     try {
       const r = await LW.call('pb_set', d);
       if (r && r.ok && r.playback) PB.cfg = r.playback;
@@ -114,6 +128,7 @@
     PB.hls = hls;
     if (window.Hls) {
       hls.on(Hls.Events.MANIFEST_PARSED, pb_applyCap);
+      pb_applyRewind();
       hls.on(Hls.Events.LEVELS_UPDATED || 'hlsLevelsUpdated', pb_applyCap);
     }
   });
